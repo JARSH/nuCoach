@@ -1,6 +1,8 @@
-# nucoach
-
-2019-2020 Senior Design Project for The University of Texas at Austin Electrical and Computer Engineering Department.
+# nuCoach
+2019-2020 Senior Design Project for The University of Texas at Austin Electrical and Computer Engineering Department.<br/>
+Project Name: Real-Time, Smart, Exercise-Form Monitoring System<br/>
+Faculty Mentor: Seth Bank<br/>
+Technical TA: Alyas Mohammed<br/>
 
 ## Getting Started
 
