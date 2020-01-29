@@ -5,7 +5,7 @@ class CalendarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TableCalendar(
-        calendarController: CalendarController()
+      calendarController: CalendarController(),
     );
   }
 }
