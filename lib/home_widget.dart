@@ -58,7 +58,9 @@ class _HomeState extends State<Home> {
             title: Text('Start Session'),
           ),
           new BottomNavigationBarItem(
-              icon: Icon(Icons.settings_applications), title: Text('Settings'))
+            icon: Icon(Icons.settings_applications),
+            title: Text('Settings'),
+          ),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.amber[800],
