@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:nucoach/calendar_widget.dart';
 import 'package:nucoach/placeholder_widget.dart';
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+class Home extends StatefulWidget {
+  Home({Key key, this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -17,17 +17,17 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _HomeState createState() => _HomeState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _HomeState extends State<Home> {
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   final List<Widget> _children = [
     CalendarWidget(),
-    PlaceholderWidget(Colors.deepOrange),
-    PlaceholderWidget(Colors.green)
+    PlaceholderWidget(Colors.deepOrange, 'Index 1: Start Session', optionStyle),
+    PlaceholderWidget(Colors.green, 'Index 2: Settings', optionStyle)
   ];
 
   @override
