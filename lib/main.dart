@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 void main() => runApp(MyApp());
 
@@ -47,10 +48,9 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static const List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'Index 0: Stats',
-      style: optionStyle,
+  List<Widget> _widgetOptions = <Widget>[
+    TableCalendar(
+      calendarController: CalendarController(),
     ),
     Text(
       'Index 1: Start Session',
