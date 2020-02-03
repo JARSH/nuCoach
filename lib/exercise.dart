@@ -1,0 +1,4 @@
+enum Exercise {
+  Squat,
+  BenchPress
+}
