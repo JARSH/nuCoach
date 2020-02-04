@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import 'home_widget.dart';
 
@@ -22,6 +23,7 @@ class App extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
+      navigatorKey: Get.key,
       home: Home(),
     );
   }

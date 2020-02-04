@@ -1,6 +1,6 @@
 class Session {
-  Session() {
-    date = DateTime.now();
+  Session(DateTime date) {
+    this.date = date;
   }
 
   DateTime date;
