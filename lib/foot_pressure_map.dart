@@ -31,7 +31,8 @@ class FootPressureMap extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             margin: const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
-                border: Border.all(color: Colors.black, width: 2.0)),
+              border: Border.all(color: Colors.black, width: 2.0),
+            ),
             child: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: fpreadingsLength,
