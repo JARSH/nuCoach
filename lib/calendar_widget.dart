@@ -6,6 +6,11 @@ class CalendarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return TableCalendar(
       calendarController: CalendarController(),
+      onDaySelected: _onDaySelected,
     );
+  }
+
+  void _onDaySelected(DateTime day, List events) {
+    print('CALLBACK: _onDaySelected' + day.toString());
   }
 }
