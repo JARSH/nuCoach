@@ -1,4 +1,4 @@
 enum Exercise {
   Squat,
-  BenchPress
+  BenchPress,
 }
