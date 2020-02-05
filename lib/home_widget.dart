@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nucoach/calendar_widget.dart';
+import 'package:nucoach/main.dart';
 import 'package:nucoach/placeholder_widget.dart';
+import 'session_start.dart';
 
 class Home extends StatefulWidget {
   Home({Key key, this.title}) : super(key: key);
@@ -26,7 +28,7 @@ class _HomeState extends State<Home> {
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   final List<Widget> _children = [
     CalendarWidget(),
-    PlaceholderWidget(Colors.deepOrange, 'Index 1: Start Session', optionStyle),
+    Session(Colors.deepOrange, "Begin a new\nworkout session!", TextStyle(color: Colors.white, fontSize: 30),cameras),
     PlaceholderWidget(Colors.green, 'Index 2: Settings', optionStyle)
   ];
 

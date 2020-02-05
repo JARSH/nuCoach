@@ -1,8 +1,19 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-
 import 'home_widget.dart';
+import 'package:camera/camera.dart';
 
-void main() => runApp(App());
+
+List<CameraDescription> cameras;
+
+Future<Null> main() async {
+  try {
+    cameras = await availableCameras();
+  } on CameraException catch (e) {
+    print('Error: $e.code\nError Message: $e.message');
+  }
+  runApp(new App());
+}
 
 class App extends StatelessWidget {
   // This widget is the root of your application.
