@@ -1,10 +1,31 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nucoach/breakdown_widget.dart';
+import 'package:tflite/tflite.dart';
 
 import 'home_widget.dart';
+import 'package:camera/camera.dart';
 
-void main() => runApp(App());
+List<CameraDescription> cameras;
+
+Future<Null> main() async {
+  WidgetsFlutterBinding.ensureInitialized();    //leave this as first line
+
+  String res = await Tflite.loadModel(
+    model: "assets/posenet_mv1_075_float_from_checkpoints.tflite",
+    numThreads: 1 // defaults to 1
+  );
+
+  try {
+    cameras = await availableCameras();
+  } on CameraException catch (e) {
+    print('Error: $e.code\nError Message: $e.message');
+  }
+
+  runApp(new App());
+
+}
 
 class App extends StatelessWidget {
   // This widget is the root of your application.
@@ -25,7 +46,7 @@ class App extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       navigatorKey: Get.key,
-      home: Home(),
+      home: new Home(cameras),
       //home: Breakdown(),
     );
   }
