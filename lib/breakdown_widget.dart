@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nucoach/overall_breakdown_widget.dart';
 import 'package:nucoach/cv_breakdown_widget.dart';
 import 'package:nucoach/fp_breakdown_widget.dart';
+import 'package:nucoach/overall_breakdown_widget.dart';
 import 'package:nucoach/rep.dart';
 
 class Breakdown extends StatefulWidget {
-  Breakdown({Key key, this.rep}) : super(key : key);
+  Breakdown({Key key, this.rep}) : super(key: key);
 
   final Rep rep;
 
@@ -16,9 +16,9 @@ class Breakdown extends StatefulWidget {
 
 class _BreakdownState extends State<Breakdown> {
   int _selectedIndex = 0;
-  static Rep rep;
+  static Rep rep = new Rep();
   static const TextStyle optionStyle =
-  TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   final List<Widget> _children = [
     OverallBreakdown(rep),
     CVBreakdown(rep),
