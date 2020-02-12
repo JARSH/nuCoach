@@ -20,25 +20,34 @@ class CalendarWidget extends StatelessWidget {
 
   void _onDaySelected(DateTime day, List events) async {
     print('CALLBACK: _onDaySelected' + day.toString());
-    Get.to(SummaryWidget(await _queryWithDate(day)));
+    Session session = await _queryWithDate(day);
+    if (session != null) {
+      Get.to(SummaryWidget(session));
+    } else {
+      Get.snackbar("Notice", "No data recorded for this date", margin: EdgeInsets.only(top: 75));
+    }
   }
 
   Future<Session> _queryWithDate(DateTime date) async {
     DatabaseHelper dbHelper = DatabaseHelper.instance;
     // final session = await dbHelper.fetchSessionByDate(date.toIso8601String());
     final sessionResult = await dbHelper.queryAllSessionRows();
-    Session session = Session.fromMap(sessionResult[0]);
-    session.sets = new List<Set>();
-    final setsResult = await dbHelper.queryAllSetRows();
-    for (var result in setsResult) {
-      Set set = Set.fromMap(result);
-      set.reps = new List<Rep>();
-      final repsResult = await dbHelper.queryAllRepRows();
-      for (var result in repsResult) {
-        set.reps.add(Rep.fromMap(result));
+    if (sessionResult != null && sessionResult.length != 0) {
+      Session session = Session.fromMap(sessionResult[0]);
+      session.sets = new List<Set>();
+      final setsResult = await dbHelper.queryAllSetRows();
+      for (var result in setsResult) {
+        Set set = Set.fromMap(result);
+        set.reps = new List<Rep>();
+        final repsResult = await dbHelper.queryAllRepRows();
+        for (var result in repsResult) {
+          set.reps.add(Rep.fromMap(result));
+        }
+        session.sets.add(set);
       }
-      session.sets.add(set);
+      return session;
+    } else {
+      return null;
     }
-    return session;
   }
 }
