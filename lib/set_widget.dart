@@ -11,11 +11,11 @@ class SetWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ExpandablePanel(
       header: Padding(
-          padding: EdgeInsets.all(10),
-          child: Text(
-            "Set " + set.id.toString(),
-            style: Theme.of(context).textTheme.body2,
-          ),
+        padding: EdgeInsets.all(10),
+        child: Text(
+          "Set " + set.id.toString(),
+          style: Theme.of(context).textTheme.body2,
+        ),
       ),
       expanded: Column(
         children: <Widget>[
@@ -23,7 +23,9 @@ class SetWidget extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(bottom: 10, left: 20),
               child: Text(
-                "Rep " + (i + 1).toString() + "                      " +
+                "Rep " +
+                    (i + 1).toString() +
+                    "                      " +
                     set.reps[i].score.toString(),
               ),
             ),

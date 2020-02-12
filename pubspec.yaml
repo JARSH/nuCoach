@@ -14,7 +14,7 @@ description: 2019-2020 Senior Design Project for The University of Texas at Aust
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.2.2 <3.0.0"
+  sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -28,6 +28,7 @@ dependencies:
   sqflite: ^1.2.0
   path_provider: ^1.6.0
   enum_to_string: ^1.0.8
+  flutter_rating_bar: ^3.0.1+1
   permission_handler: '^4.2.0+hotfix.3'
 
   # The following adds the Cupertino Icons font to your application.

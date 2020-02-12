@@ -50,6 +50,7 @@ class App extends StatelessWidget {
       ),
       navigatorKey: Get.key,
       home: new Home(cameras),
+      //home: Breakdown(),
     );
   }
 }

@@ -24,7 +24,11 @@ class CalendarWidget extends StatelessWidget {
     if (session != null) {
       Get.to(SummaryWidget(session));
     } else {
-      Get.snackbar("Notice", "No data recorded for this date", margin: EdgeInsets.only(top: 75));
+      Get.snackbar(
+        "Notice",
+        "No data recorded for this date",
+        margin: EdgeInsets.only(top: 75),
+      );
     }
   }
 

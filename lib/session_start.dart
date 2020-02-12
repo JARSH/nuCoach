@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
-import 'camera_widget.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
+
+import 'camera_widget.dart';
 
 class Session extends StatefulWidget {
   final Color color;
@@ -34,7 +35,8 @@ class SessionState extends State<Session> {
         // print('you clicked me');
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => Camera(widget.cameras, setRecognitions)),
+          MaterialPageRoute(
+              builder: (context) => Camera(widget.cameras, setRecognitions)),
         );
       },
       color: widget.color,

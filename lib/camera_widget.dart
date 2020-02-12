@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
 import 'package:tflite/tflite.dart';
 // import 'dart:math' as math;
 
@@ -27,17 +27,18 @@ class _CameraState extends State<Camera> {
       await showDialog<String>(
         context: context,
         builder: (BuildContext context) => new AlertDialog(
-              // title: new Text("title"),
-              content: new Text("Please position your camera to fit your full height in frame."),
-              actions: <Widget>[
-                new FlatButton(
-                  child: new Text("OK"),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
+          // title: new Text("title"),
+          content: new Text(
+              "Please position your camera to fit your full height in frame."),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
             ),
+          ],
+        ),
       );
     });
 
@@ -61,7 +62,9 @@ class _CameraState extends State<Camera> {
             // int startTime = new DateTime.now().millisecondsSinceEpoch;
 
             var result = Tflite.runPoseNetOnFrame(
-              bytesList: img.planes.map((plane) {return plane.bytes;}).toList(),
+              bytesList: img.planes.map((plane) {
+                return plane.bytes;
+              }).toList(),
               imageHeight: img.height,
               imageWidth: img.width,
               numResults: 2,
@@ -72,8 +75,7 @@ class _CameraState extends State<Camera> {
               widget.setRecognitions(recognitions, img.height, img.width);
 
               isDetecting = false;
-            }
-            );
+            });
             print(result);
           }
         });
@@ -106,19 +108,19 @@ class _CameraState extends State<Camera> {
       appBar: AppBar(
         title: Text('nuCoach'),
       ),
-      body:// OverflowBox(
-        // maxHeight:
-        //     screenRatio > previewRatio ? screenH : screenW / previewW * previewH,
-        // maxWidth:
-        //     screenRatio > previewRatio ? screenH / previewH * previewW : screenW,
-        /*child:*/ CameraPreview(controller//),
-      ),
+      body: // OverflowBox(
+          // maxHeight:
+          //     screenRatio > previewRatio ? screenH : screenW / previewW * previewH,
+          // maxWidth:
+          //     screenRatio > previewRatio ? screenH / previewH * previewW : screenW,
+          /*child:*/ CameraPreview(controller //),
+              ),
       floatingActionButton: FloatingActionButton(
-      backgroundColor: Colors.redAccent,
-      onPressed: () {
-        print('why?');
-      },
-      child: Icon(Icons.stop),
+        backgroundColor: Colors.redAccent,
+        onPressed: () {
+          print('why?');
+        },
+        child: Icon(Icons.stop),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
