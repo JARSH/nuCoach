@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:nucoach/overall_breakdown_widget.dart';
+import 'package:nucoach/rep.dart';
 
 import 'home_widget.dart';
 
@@ -25,6 +27,7 @@ class App extends StatelessWidget {
       ),
       navigatorKey: Get.key,
       home: Home(),
+      //home: OverallBreakdown(new Rep()),
     );
   }
 }
