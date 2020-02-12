@@ -1,20 +1,21 @@
 import 'dart:async';
+
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:nucoach/breakdown_widget.dart';
 import 'package:tflite/tflite.dart';
 
 import 'home_widget.dart';
-import 'package:camera/camera.dart';
 
 List<CameraDescription> cameras;
 
 Future<Null> main() async {
-  WidgetsFlutterBinding.ensureInitialized();    //leave this as first line
+  WidgetsFlutterBinding.ensureInitialized(); //leave this as first line
 
   String res = await Tflite.loadModel(
     model: "assets/posenet_mv1_075_float_from_checkpoints.tflite",
-    numThreads: 1 // defaults to 1
+    numThreads: 1, // defaults to 1
   );
 
   try {
@@ -24,15 +25,17 @@ Future<Null> main() async {
   }
 
   runApp(new App());
-
 }
 
 class App extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'nuCoach',
       theme: ThemeData(
         // This is the theme of your application.
         //

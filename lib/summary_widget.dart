@@ -17,12 +17,16 @@ class SummaryWidget extends StatelessWidget {
         title: Text('Session for ' + formatter.format(session.date)),
       ),
       body: ListView(
-        children: <Widget>[
-          SetWidget(Set(1)),
-          SetWidget(Set(2)),
-          SetWidget(Set(3)),
-        ],
+        children: createSetWidgets(this.session.sets),
       ),
     );
+  }
+
+  List<Widget> createSetWidgets(List<Set> sets) {
+    List<Widget> list = new List<Widget>();
+    for (int i = 0; i < sets.length; i++) {
+      list.add(new SetWidget(sets[i]));
+    }
+    return list;
   }
 }
