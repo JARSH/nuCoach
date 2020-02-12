@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:camera/camera.dart';
 import 'package:nucoach/calendar_widget.dart';
 import 'package:nucoach/main.dart';
 import 'package:nucoach/placeholder_widget.dart';
 import 'session_start.dart';
 
 class Home extends StatefulWidget {
-  Home({Key key, this.title}) : super(key: key);
+  final List<CameraDescription> cameras;
+  Home(this.cameras, {Key key, this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -23,6 +26,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  Map<PermissionGroup, PermissionStatus> permissions;
+
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
@@ -31,6 +36,12 @@ class _HomeState extends State<Home> {
     Session(Colors.deepOrange, "Begin a new\nworkout session!", TextStyle(color: Colors.white, fontSize: 30),cameras),
     PlaceholderWidget(Colors.green, 'Index 2: Settings', optionStyle)
   ];
+
+  @override
+  void initState(){
+    super.initState();
+    getPermission();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,5 +91,12 @@ class _HomeState extends State<Home> {
       // called again, and so nothing would appear to happen.
       _selectedIndex = index;
     });
+  }
+
+    void getPermission() async {
+    permissions = await PermissionHandler().requestPermissions([
+      PermissionGroup.camera,
+      PermissionGroup.storage
+    ]);
   }
 }
