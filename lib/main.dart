@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:nucoach/breakdown_widget.dart';
 import 'package:tflite/tflite.dart';
 
 import 'home_widget.dart';
@@ -10,7 +11,7 @@ List<CameraDescription> cameras;
 
 Future<Null> main() async {
   WidgetsFlutterBinding.ensureInitialized();    //leave this as first line
-  
+
   String res = await Tflite.loadModel(
     model: "assets/posenet_mv1_075_float_from_checkpoints.tflite",
     numThreads: 1 // defaults to 1
@@ -46,6 +47,7 @@ class App extends StatelessWidget {
       ),
       navigatorKey: Get.key,
       home: new Home(cameras),
+      //home: Breakdown(),
     );
   }
 }
