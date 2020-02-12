@@ -1,11 +1,11 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:nucoach/calendar_widget.dart';
-import 'package:nucoach/database_test_widget.dart';
+import 'package:nucoach/components/database_test_widget.dart';
 import 'package:nucoach/main.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import 'session_start.dart';
+import 'components/calendar_widget.dart';
+import 'components/session_start.dart';
 
 class Home extends StatefulWidget {
   final List<CameraDescription> cameras;

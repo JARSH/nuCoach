@@ -1,9 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nucoach/cv_breakdown_widget.dart';
-import 'package:nucoach/fp_breakdown_widget.dart';
-import 'package:nucoach/overall_breakdown_widget.dart';
-import 'package:nucoach/rep.dart';
+import 'package:nucoach/models/rep.dart';
+import 'package:nucoach/screens/breakdown/components/cv_breakdown_widget.dart';
+import 'package:nucoach/screens/breakdown/components/fp_breakdown_widget.dart';
+import 'package:nucoach/screens/breakdown/components/overall_breakdown_widget.dart';
 
 class Breakdown extends StatefulWidget {
   Breakdown({Key key, this.rep}) : super(key: key);

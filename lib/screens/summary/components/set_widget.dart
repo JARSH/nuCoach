@@ -1,6 +1,6 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
-import 'package:nucoach/set.dart';
+import 'package:nucoach/models/set.dart';
 
 class SetWidget extends StatelessWidget {
   final Set set;

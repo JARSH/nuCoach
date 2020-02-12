@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:nucoach/rep.dart';
-import 'package:nucoach/session.dart';
-import 'package:nucoach/set.dart';
-import 'package:nucoach/summary_widget.dart';
+import 'package:nucoach/models/rep.dart';
+import 'package:nucoach/models/session.dart';
+import 'package:nucoach/models/set.dart';
+import 'package:nucoach/screens/summary/summary_widget.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import 'database_helpers.dart';
+import '../../../database/database_helpers.dart';
 
 class CalendarWidget extends StatelessWidget {
   @override

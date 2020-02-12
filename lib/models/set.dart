@@ -1,7 +1,7 @@
 import 'package:enum_to_string/enum_to_string.dart';
-import 'package:nucoach/database_helpers.dart';
-import 'package:nucoach/exercise.dart';
-import 'package:nucoach/rep.dart';
+import 'package:nucoach/database/database_helpers.dart';
+import 'package:nucoach/enums/exercise.dart';
+import 'package:nucoach/models/rep.dart';
 
 class Set {
   int id;

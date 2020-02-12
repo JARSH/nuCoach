@@ -1,5 +1,5 @@
-import 'package:nucoach/database_helpers.dart';
-import 'package:nucoach/set.dart';
+import 'package:nucoach/database/database_helpers.dart';
+import 'package:nucoach/models/set.dart';
 
 class Session {
   int id;

@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:tflite/tflite.dart';
 
-import 'home_widget.dart';
+import 'screens/home/home_widget.dart';
 
 List<CameraDescription> cameras;
 
