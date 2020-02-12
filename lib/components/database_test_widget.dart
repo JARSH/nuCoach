@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nucoach/database_helpers.dart';
+import 'package:nucoach/database/database_helpers.dart';
 
-import 'exercise.dart';
+import '../enums/exercise.dart';
 
 class DatabaseTestWidget extends StatelessWidget {
   // reference to our single class that manages the database

@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
-import 'package:nucoach/rep.dart';
+import 'package:flutter/material.dart';
+import 'package:nucoach/models/rep.dart';
 
 class FPBreakdown extends StatelessWidget {
   Rep rep;

@@ -1,6 +1,6 @@
-import 'package:nucoach/angles.dart';
-import 'package:nucoach/database_helpers.dart';
-import 'package:nucoach/foot_pressure_map.dart';
+import 'package:nucoach/screens/breakdown/components/angles.dart';
+import 'package:nucoach/database/database_helpers.dart';
+import 'package:nucoach/screens/breakdown/components/foot_pressure_map.dart';
 
 class Rep {
   int id;

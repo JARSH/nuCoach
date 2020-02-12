@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:nucoach/session.dart';
-import 'package:nucoach/set.dart';
-import 'package:nucoach/set_widget.dart';
+import 'package:nucoach/models/session.dart';
+import 'package:nucoach/models/set.dart';
+import 'package:nucoach/screens/summary/components/set_widget.dart';
 
 class SummaryWidget extends StatelessWidget {
   final Session session;

@@ -1,7 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
-import 'camera_widget.dart';
+import '../../camera/camera_widget.dart';
 
 class Session extends StatefulWidget {
   final Color color;
