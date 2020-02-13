@@ -1,5 +1,5 @@
-import 'package:nucoach/screens/breakdown/components/angles.dart';
 import 'package:nucoach/database/database_helpers.dart';
+import 'package:nucoach/screens/breakdown/components/angles.dart';
 import 'package:nucoach/screens/breakdown/components/foot_pressure_map.dart';
 
 class Rep {
@@ -11,9 +11,7 @@ class Rep {
   Rep() {
     this.id = 1;
     this.score = 100;
-    this.angles = new Angles();
-    this.angles.shk = 90;
-    this.angles.hka = 50;
+    this.angles = new Angles(90, 50);
     this.fpmap = new FootPressureMap();
   }
 
@@ -29,6 +27,8 @@ class Rep {
   Rep.fromMap(Map map) {
     this.id = map[columnId];
     this.score = map[columnScore];
+    this.angles = new Angles(map[columnShk], map[columnHka]);
+    this.fpmap = new FootPressureMap();
   }
 
   Map toMap() {

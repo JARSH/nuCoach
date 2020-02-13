@@ -5,31 +5,34 @@ import 'package:nucoach/screens/breakdown/components/fp_breakdown_widget.dart';
 import 'package:nucoach/screens/breakdown/components/overall_breakdown_widget.dart';
 
 class Breakdown extends StatefulWidget {
-  Breakdown({Key key, this.rep}) : super(key: key);
+  Breakdown(this.rep, {Key key}) : super(key: key);
 
   final Rep rep;
 
   @override
-  _BreakdownState createState() => _BreakdownState(rep);
+  _BreakdownState createState() => _BreakdownState();
 }
 
 class _BreakdownState extends State<Breakdown> {
   int _selectedIndex = 0;
-  static Rep rep = new Rep();
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  final List<Widget> _children = [
-    OverallBreakdown(rep),
-    CVBreakdown(rep),
-    FPBreakdown(rep),
-  ];
+  static List<Widget> _children;
 
-  _BreakdownState(rep) {
-    _BreakdownState.rep = rep;
+  @override
+  void initState() {
+    super.initState();
+    _children = [
+      OverallBreakdown(widget.rep),
+      CVBreakdown(widget.rep),
+      FPBreakdown(widget.rep),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
+    print(widget.rep);
+    print(widget.rep.score);
+    print(widget.rep.angles.shk);
+    print(widget.rep.angles.hka);
     return Scaffold(
       appBar: AppBar(
         title: Text('nuCoach'),

@@ -1,6 +1,8 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:nucoach/models/set.dart';
+import 'package:nucoach/screens/breakdown/breakdown_widget.dart';
 
 class SetWidget extends StatelessWidget {
   final Set set;
@@ -21,12 +23,17 @@ class SetWidget extends StatelessWidget {
         children: <Widget>[
           for (int i = 0; i < set.reps.length; i++)
             Padding(
-              padding: EdgeInsets.only(bottom: 10, left: 20),
-              child: Text(
-                "Rep " +
-                    (i + 1).toString() +
-                    "                      " +
-                    set.reps[i].score.toString(),
+              padding: EdgeInsets.only(left: 20),
+              child: FlatButton(
+                child: Text(
+                  "Rep " +
+                      (i + 1).toString() +
+                      "                      " +
+                      set.reps[i].score.toString(),
+                ),
+                onPressed: () {
+                  Get.to(Breakdown(set.reps[i]));
+                },
               ),
             ),
         ],

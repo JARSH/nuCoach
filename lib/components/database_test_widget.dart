@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nucoach/database/database_helpers.dart';
-
-import '../enums/exercise.dart';
+import 'package:nucoach/enums/exercise.dart';
 
 class DatabaseTestWidget extends StatelessWidget {
   // reference to our single class that manages the database
@@ -97,6 +96,8 @@ class DatabaseTestWidget extends StatelessWidget {
   void _insertRep() async {
     Map<String, dynamic> row = {
       columnScore: 57,
+      columnShk: 78,
+      columnHka: 46,
     };
     final id = await dbHelper.insertRep(row);
     print('inserted row id: $id');
