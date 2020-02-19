@@ -13,9 +13,6 @@ class FootPressureMap extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Foot Pressure Map'),
-      ),
       body: _buildFootPressureMap(),
     );
   }

@@ -11,7 +11,8 @@ class Home extends StatefulWidget {
   final List<CameraDescription> cameras;
   final int initialIndex;
 
-  Home(this.cameras, this.initialIndex, {Key key, this.title}) : super(key: key);
+  Home(this.cameras, this.initialIndex, {Key key, this.title})
+      : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect

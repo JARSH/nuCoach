@@ -8,11 +8,28 @@ import 'package:table_calendar/table_calendar.dart';
 
 import '../../../database/database_helpers.dart';
 
-class CalendarWidget extends StatelessWidget {
+class CalendarWidget extends StatefulWidget {
+  CalendarWidget({Key key, this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _CalendarWidgetState createState() => _CalendarWidgetState();
+}
+
+class _CalendarWidgetState extends State<CalendarWidget> {
+  CalendarController _calendarController;
+
+  @override
+  void initState() {
+    super.initState();
+    _calendarController = CalendarController();
+  }
+
   @override
   Widget build(BuildContext context) {
     return TableCalendar(
-      calendarController: CalendarController(),
+      calendarController: _calendarController,
       availableCalendarFormats: const {CalendarFormat.month: 'Month'},
       onDaySelected: _onDaySelected,
     );

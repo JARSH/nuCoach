@@ -1,14 +1,15 @@
+import 'dart:math' as math;
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:nucoach/screens/summary/summary_widget.dart';
-import 'package:nucoach/models/session.dart';
 import 'package:nucoach/database/database_helpers.dart';
+import 'package:nucoach/models/session.dart';
+import 'package:nucoach/screens/summary/summary_widget.dart';
 import 'package:tflite/tflite.dart';
-import 'dart:math' as math;
 
 enum ConfirmSave { DISCARD, KEEP, EXPORT }
-enum MidSession {END, CONTINUE}
+enum MidSession { END, CONTINUE }
 
 typedef void Callback(List<dynamic> list, int h, int w);
 
@@ -16,7 +17,7 @@ class Camera extends StatefulWidget {
   final List<CameraDescription> cameras;
   final Callback setRecognitions;
   int totalReps = 0;
-  int currentReps = 0;  //completed in current set
+  int currentReps = 0; //completed in current set
   int currentSet = 1;
   String exerciseType = 'squats';
 
@@ -34,7 +35,7 @@ class _CameraState extends State<Camera> {
   //variables for rep detection
   var previousData;
   bool firstFrame = true;
-  int referenceID;    //ID of body part used as start/stop reference
+  int referenceID; //ID of body part used as start/stop reference
   bool descending = true;
 
   var angleBuffer = [];
@@ -69,7 +70,7 @@ class _CameraState extends State<Camera> {
       print('No camera is found');
     } else {
       controller = new CameraController(
-        widget.cameras[0],  //front facing camera = 1, rear camera = 0
+        widget.cameras[0], //front facing camera = 1, rear camera = 0
         ResolutionPreset.medium,
       );
       controller.initialize().then((_) {
@@ -90,11 +91,11 @@ class _CameraState extends State<Camera> {
               imageWidth: img.width,
               numResults: 2,
             ).then((recognitions) {
-              
               var keyData = recognitions[0]['keypoints'];
               if (firstFrame) {
                 //check scores of leftHip and rightHip, and decide which will be the reference
-                if (recognitions[0]['keypoints'][11]['score'] > recognitions[0]['keypoints'][12]['score']) {
+                if (recognitions[0]['keypoints'][11]['score'] >
+                    recognitions[0]['keypoints'][12]['score']) {
                   //TODO: deal with exceptions
                   referenceID = 11;
                 } else {
@@ -102,13 +103,17 @@ class _CameraState extends State<Camera> {
                 }
                 firstFrame = false;
               } else {
-                if (descending && (keyData[referenceID]['y'] > previousData[referenceID]['y'])) {
+                if (descending &&
+                    (keyData[referenceID]['y'] >
+                        previousData[referenceID]['y'])) {
                   descending = false;
                   //send previousData to a local buffer to be processed later
                   angleBuffer.add(previousData);
                   widget.currentReps++;
-                } else if (!descending && (keyData[referenceID]['y'] < previousData[referenceID]['y'])) {
-                    descending = true;
+                } else if (!descending &&
+                    (keyData[referenceID]['y'] <
+                        previousData[referenceID]['y'])) {
+                  descending = true;
                 }
               }
 
@@ -135,7 +140,7 @@ class _CameraState extends State<Camera> {
     */
     Session session;
     DateTime now = new DateTime.now();
-    DateTime today = new DateTime(now.year,now.month,now.day);
+    DateTime today = new DateTime(now.year, now.month, now.day);
     var sessionResult = await dbHelper.fetchSessionByDate(today.toString());
     if (sessionResult == null) {
       Map<String, dynamic> row = {columnDate: today.toString()};
@@ -147,10 +152,9 @@ class _CameraState extends State<Camera> {
     return Session.fromMap(sessionResult);
   }
 
-
   void CalculateAngles() async {
     int shoulder, hip, knee, ankle;
-    if(referenceID == 11) {
+    if (referenceID == 11) {
       shoulder = 5;
       hip = 11;
       knee = 13;
@@ -162,14 +166,31 @@ class _CameraState extends State<Camera> {
       ankle = 16;
     }
     // TODO: insert a set
-    for(var angleData in angleBuffer) { //TODO: concurrent modification exception (growable list)
-      double shoulderHip = math.sqrt(math.pow((angleData[shoulder]['x'] - angleData[hip]['x']), 2) + math.pow((angleData[shoulder]['y'] - angleData[hip]['y']), 2));
-      double hipKnee = math.sqrt((math.pow((angleData[hip]['x'] - angleData[knee]['x']), 2)) + math.pow((angleData[hip]['y'] - angleData[knee]['y']), 2));
-      double kneeAnkle = math.sqrt((math.pow((angleData[knee]['x'] - angleData[ankle]['x']), 2)) + math.pow((angleData[knee]['y'] - angleData[ankle]['y']), 2));
-      double shoulderKnee = math.sqrt((math.pow((angleData[shoulder]['x'] - angleData[knee]['x']), 2)) + math.pow((angleData[shoulder]['y'] - angleData[knee]['y']), 2));
-      double hipAnkle = math.sqrt((math.pow((angleData[hip]['x'] - angleData[ankle]['x']), 2)) + math.pow((angleData[hip]['y'] - angleData[ankle]['y']), 2));
-      double shk = math.acos((math.pow(shoulderHip, 2) + math.pow(hipKnee, 2) - math.pow(shoulderKnee, 2)) / (2 * shoulderHip * hipKnee));
-      double hka = math.acos((math.pow(hipKnee, 2) + math.pow(kneeAnkle, 2) - math.pow(hipAnkle, 2)) / (2 * hipKnee * kneeAnkle));
+    for (var angleData in angleBuffer) {
+      //TODO: concurrent modification exception (growable list)
+      double shoulderHip = math.sqrt(
+          math.pow((angleData[shoulder]['x'] - angleData[hip]['x']), 2) +
+              math.pow((angleData[shoulder]['y'] - angleData[hip]['y']), 2));
+      double hipKnee = math.sqrt(
+          (math.pow((angleData[hip]['x'] - angleData[knee]['x']), 2)) +
+              math.pow((angleData[hip]['y'] - angleData[knee]['y']), 2));
+      double kneeAnkle = math.sqrt(
+          (math.pow((angleData[knee]['x'] - angleData[ankle]['x']), 2)) +
+              math.pow((angleData[knee]['y'] - angleData[ankle]['y']), 2));
+      double shoulderKnee = math.sqrt(
+          (math.pow((angleData[shoulder]['x'] - angleData[knee]['x']), 2)) +
+              math.pow((angleData[shoulder]['y'] - angleData[knee]['y']), 2));
+      double hipAnkle = math.sqrt(
+          (math.pow((angleData[hip]['x'] - angleData[ankle]['x']), 2)) +
+              math.pow((angleData[hip]['y'] - angleData[ankle]['y']), 2));
+      double shk = math.acos((math.pow(shoulderHip, 2) +
+              math.pow(hipKnee, 2) -
+              math.pow(shoulderKnee, 2)) /
+          (2 * shoulderHip * hipKnee));
+      double hka = math.acos((math.pow(hipKnee, 2) +
+              math.pow(kneeAnkle, 2) -
+              math.pow(hipAnkle, 2)) /
+          (2 * hipKnee * kneeAnkle));
       Map<String, dynamic> row = {
         columnSetId: widget.currentSet,
         columnShk: shk,
@@ -202,17 +223,16 @@ class _CameraState extends State<Camera> {
               },
             ),
             FlatButton(
-              child: const Text('KEEP AND EXPORT'),
-              onPressed: () {
-                Navigator.of(context).pop(ConfirmSave.EXPORT);
-                }
-            )
+                child: const Text('KEEP AND EXPORT'),
+                onPressed: () {
+                  Navigator.of(context).pop(ConfirmSave.EXPORT);
+                })
           ],
         );
       },
     );
   }
- 
+
   Future<MidSession> _asyncMidSessDialog(BuildContext context) async {
     return showDialog<MidSession>(
       context: context,
@@ -221,7 +241,7 @@ class _CameraState extends State<Camera> {
         return AlertDialog(
           content: Text(
               'You just did ${widget.currentReps} reps of ${widget.exerciseType} and have done ${widget.totalReps} '
-               '${widget.exerciseType} reps in total!'),
+              '${widget.exerciseType} reps in total!'),
           actions: <Widget>[
             FlatButton(
               child: const Text('END SESSION'),
@@ -240,7 +260,7 @@ class _CameraState extends State<Camera> {
       },
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
     if (controller == null || !controller.value.isInitialized) {
@@ -261,12 +281,14 @@ class _CameraState extends State<Camera> {
         title: Text('nuCoach'),
       ),
       body: OverflowBox(
-          maxHeight:
-              screenRatio > previewRatio ? screenH : screenW / previewW * previewH,
-          maxWidth:
-              screenRatio > previewRatio ? screenH / previewH * previewW : screenW,
-          child: CameraPreview(controller ),
-              ),
+        maxHeight: screenRatio > previewRatio
+            ? screenH
+            : screenW / previewW * previewH,
+        maxWidth: screenRatio > previewRatio
+            ? screenH / previewH * previewW
+            : screenW,
+        child: CameraPreview(controller),
+      ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.redAccent,
         onPressed: () async {
