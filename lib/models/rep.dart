@@ -21,7 +21,7 @@ class Rep {
     columnScore,
     columnShk,
     columnHka,
-    columnFmp,
+    columnFpm,
   ];
 
   Rep.fromMap(Map map) {

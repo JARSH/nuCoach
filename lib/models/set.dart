@@ -6,6 +6,7 @@ import 'package:nucoach/models/rep.dart';
 class Set {
   int id;
   Exercise exercise;
+  int weight;
   int score;
   List<Rep> reps;
 
@@ -29,6 +30,7 @@ class Set {
     this.id = map[columnId];
     this.exercise =
         EnumToString.fromString(Exercise.values, map[columnExercise]);
+    this.weight = map[columnWeight];
     this.score = map[columnScore];
   }
 

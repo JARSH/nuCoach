@@ -15,7 +15,7 @@ class SetWidget extends StatelessWidget {
       header: Padding(
         padding: EdgeInsets.all(10),
         child: Text(
-          "Set " + set.id.toString(),
+          "Set " + set.id.toString() + " Weight: " + set.weight.toString(),
           style: Theme.of(context).textTheme.body2,
         ),
       ),
@@ -28,7 +28,7 @@ class SetWidget extends StatelessWidget {
                 child: Text(
                   "Rep " +
                       (i + 1).toString() +
-                      "                      " +
+                      "                     Score: " +
                       set.reps[i].score.toString(),
                 ),
                 onPressed: () {

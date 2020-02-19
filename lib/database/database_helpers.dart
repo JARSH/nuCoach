@@ -12,10 +12,11 @@ final String columnSessionId = 'session_id';
 final String columnSetId = 'set_id';
 final String columnDate = 'date';
 final String columnExercise = 'exercise';
+final String columnWeight = 'weight';
 final String columnScore = 'score';
 final String columnShk = 'shk';
 final String columnHka = 'hka';
-final String columnFmp = 'fmp';
+final String columnFpm = 'fpm';
 
 class DatabaseHelper {
   static final _databaseName = "MyDatabase.db";
@@ -57,6 +58,7 @@ class DatabaseHelper {
             $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
             $columnSessionId INTEGER,
             $columnExercise TEXT,
+            $columnWeight INTEGER,
             $columnScore INTEGER
       )
       ''');
@@ -67,7 +69,7 @@ class DatabaseHelper {
             $columnScore INTEGER,
             $columnShk INTEGER,
             $columnHka INTEGER,
-            $columnFmp TEXT
+            $columnFpm TEXT
       )
       ''');
   }

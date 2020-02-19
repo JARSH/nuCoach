@@ -87,6 +87,7 @@ class DatabaseTestWidget extends StatelessWidget {
     Map<String, dynamic> row = {
       columnSessionId: 1,
       columnExercise: Exercise.Squat.toString(),
+      columnWeight: 45,
       columnScore: 95,
     };
     final id = await dbHelper.insertSet(row);
