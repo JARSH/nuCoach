@@ -15,6 +15,7 @@ class Session {
   Session.fromMap(Map<String, dynamic> map) {
     this.id = map[columnId];
     this.date = DateTime.parse(map[columnDate]);
+    this.sets = new List();
   }
 
   Map toMap() {

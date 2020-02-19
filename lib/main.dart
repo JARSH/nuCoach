@@ -49,7 +49,8 @@ class App extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       navigatorKey: Get.key,
-      home: new Home(cameras),
+      home: new Home(cameras, 1),
+      //home: Breakdown(),
     );
   }
 }
