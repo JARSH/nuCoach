@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:nucoach/models/session.dart';
 
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -97,6 +98,20 @@ class DatabaseHelper {
   Future<List<Map<String, dynamic>>> queryAllSessionRows() async {
     Database db = await instance.database;
     return await db.query(tableSessions);
+  }
+
+  Future<Map<String, dynamic>> fetchSessionByDate(String date) async {
+    Database db = await instance.database;
+    List<Map> results = await db.query(
+      tableSessions,
+      columns: Session.columns,
+      where: "$columnDate = ?",
+      whereArgs: [date],
+    );
+    if (results.isEmpty) {
+      return null;
+    }
+    return results[0];
   }
 
   Future<List<Map<String, dynamic>>> queryAllSetRows() async {

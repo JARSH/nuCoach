@@ -1,6 +1,8 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:nucoach/screens/home/components/calendar_widget.dart';
+import 'package:get/get.dart';
+import 'package:nucoach/screens/summary/summary_widget.dart';
+import 'package:nucoach/models/session.dart';
 import 'package:nucoach/database/database_helpers.dart';
 import 'package:tflite/tflite.dart';
 import 'dart:math' as math;
@@ -27,6 +29,7 @@ class Camera extends StatefulWidget {
 class _CameraState extends State<Camera> {
   CameraController controller;
   bool isDetecting = false;
+  Future<Session> session;
 
   //variables for rep detection
   var previousData;
@@ -40,6 +43,8 @@ class _CameraState extends State<Camera> {
   @override
   void initState() {
     super.initState();
+
+    session = _querySessions();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await showDialog<String>(
@@ -124,6 +129,25 @@ class _CameraState extends State<Camera> {
     super.dispose();
   }
 
+  Future<Session> _querySessions() async {
+    /*1. check if today already has a session
+    2.if today's session exists, get the sessionID, otherwise insert a new session into database
+    */
+    Session session;
+    DateTime now = new DateTime.now();
+    DateTime today = new DateTime(now.year,now.month,now.day);
+    var sessionResult = await dbHelper.fetchSessionByDate(today.toString());
+    if (sessionResult == null) {
+      Map<String, dynamic> row = {columnDate: today.toString()};
+      session = Session.fromMap(row);
+      session.id = await dbHelper.insertSession(row);
+      session.sets = new List();
+      return session;
+    }
+    return Session.fromMap(sessionResult);
+  }
+
+
   void CalculateAngles() async {
     int shoulder, hip, knee, ankle;
     if(referenceID == 11) {
@@ -137,7 +161,7 @@ class _CameraState extends State<Camera> {
       knee = 14;
       ankle = 16;
     }
-    // Do we need to add a set to the database? Do we need to add a session?
+    // TODO: insert a set
     for(var angleData in angleBuffer) { //TODO: concurrent modification exception (growable list)
       double shoulderHip = math.sqrt(math.pow((angleData[shoulder]['x'] - angleData[hip]['x']), 2) + math.pow((angleData[shoulder]['y'] - angleData[hip]['y']), 2));
       double hipKnee = math.sqrt((math.pow((angleData[hip]['x'] - angleData[knee]['x']), 2)) + math.pow((angleData[hip]['y'] - angleData[knee]['y']), 2));
@@ -264,11 +288,12 @@ class _CameraState extends State<Camera> {
             if (next == MidSession.END) {
               print('GET ME OUT');
               // Navigator to summary
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                builder: (context) => CalendarWidget()) //TODO: change this to home widget
-              );
+              Get.to(SummaryWidget(await session));
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //   builder: (context) => CalendarWidget()) //TODO: change this to home widget
+              // );
             } else {
               widget.currentReps = 0;
               widget.currentSet++;

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:get/get.dart';
 import 'package:nucoach/models/session.dart';
 import 'package:nucoach/models/set.dart';
 import 'package:nucoach/screens/summary/components/set_widget.dart';
+
+import 'package:nucoach/main.dart';
+import 'package:nucoach/screens/home/home_widget.dart';
 
 class SummaryWidget extends StatelessWidget {
   final Session session;
@@ -12,12 +16,18 @@ class SummaryWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var formatter = DateFormat.yMd();
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Session for ' + formatter.format(session.date)),
-      ),
-      body: ListView(
-        children: createSetWidgets(this.session.sets),
+    return WillPopScope(
+      onWillPop: () {
+        Get.to(Home(cameras,0));
+        return Future.value(false);
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Session for ' + formatter.format(session.date)),
+        ),
+        body: ListView(
+          children: createSetWidgets(this.session.sets),
+        ),
       ),
     );
   }
@@ -29,4 +39,5 @@ class SummaryWidget extends StatelessWidget {
     }
     return list;
   }
+
 }

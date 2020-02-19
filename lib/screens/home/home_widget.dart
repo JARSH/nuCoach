@@ -9,8 +9,9 @@ import 'components/session_start.dart';
 
 class Home extends StatefulWidget {
   final List<CameraDescription> cameras;
+  final int initialIndex;
 
-  Home(this.cameras, {Key key, this.title}) : super(key: key);
+  Home(this.cameras, this.initialIndex, {Key key, this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -29,14 +30,14 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   Map<PermissionGroup, PermissionStatus> permissions;
+  int _selectedIndex;
 
-  int _selectedIndex = 1;
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   final List<Widget> _children = [
     CalendarWidget(),
-    Session(Colors.deepOrange, "Begin a new\nworkout session!",
-        TextStyle(color: Colors.white, fontSize: 30), cameras),
+    Session(Colors.tealAccent, "Begin a new\nworkout session!",
+        TextStyle(color: Colors.black, fontSize: 30), cameras),
     DatabaseTestWidget()
   ];
 
@@ -44,6 +45,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     getPermission();
+    _selectedIndex = widget.initialIndex;
   }
 
   @override
