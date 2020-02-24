@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class Angles extends StatelessWidget {
-  int shk;
-  int hka;
+  double shk;
+  double hka;
 
-  Angles(int shk, int hka) {
+  Angles(double shk, double hka) {
     this.shk = shk;
     this.hka = hka;
   }

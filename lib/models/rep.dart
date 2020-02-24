@@ -27,7 +27,7 @@ class Rep {
   Rep.fromMap(Map map) {
     this.id = map[columnId];
     this.score = map[columnScore];
-    this.angles = new Angles(map[columnShk], map[columnHka]);
+    this.angles = new Angles(map[columnShk].toDouble(), map[columnHka].toDouble());
     this.fpmap = new FootPressureMap();
   }
 
