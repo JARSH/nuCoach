@@ -193,6 +193,7 @@ class _CameraState extends State<Camera> {
           (2 * hipKnee * kneeAnkle));
       Map<String, dynamic> row = {
         columnSetId: widget.currentSet,
+        columnScore: 67, //DUMMY VALUE
         columnShk: shk,
         columnHka: hka,
       };

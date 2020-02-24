@@ -13,7 +13,7 @@ class CVBreakdown extends StatelessWidget {
     return Container(
       width: 100,
       height: 100,
-      child: Text(rep.angles.shk.toString() + rep.angles.hka.toString()),
+      child: Text("SHK: " + rep.angles.shk.toString() + "\nHKA: " + rep.angles.hka.toString()),
     );
     //return rep.angles;
   }
