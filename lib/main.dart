@@ -13,7 +13,7 @@ List<CameraDescription> cameras;
 Future<Null> main() async {
   WidgetsFlutterBinding.ensureInitialized(); //leave this as first line
 
-  String res = await Tflite.loadModel(
+  await Tflite.loadModel(
     model: "assets/posenet_mv1_075_float_from_checkpoints.tflite",
     numThreads: 1, // defaults to 1
   );

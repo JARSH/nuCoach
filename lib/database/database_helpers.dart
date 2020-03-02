@@ -4,6 +4,8 @@ import 'package:nucoach/models/session.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:nucoach/models/set.dart';
+import 'package:nucoach/models/rep.dart';
 
 final String tableSessions = 'sessions';
 final String tableSets = 'sets';
@@ -121,8 +123,39 @@ class DatabaseHelper {
     return await db.query(tableSets);
   }
 
+  Future<List<Set>> fetchSetsWithSessionId(int sessionId) async {
+    List<Map> results = await _database.query(
+        tableSets,
+        columns: Set.columns,
+        where: "$columnSessionId = ?",
+        whereArgs: [sessionId]
+    );
+    List<Set> sets = new List();
+    results.forEach((result) {
+      Set set = Set.fromMap(result);
+      sets.add(set);
+    });
+    return sets;
+  }
+
   Future<List<Map<String, dynamic>>> queryAllRepRows() async {
     Database db = await instance.database;
     return await db.query(tableReps);
+  }
+
+  Future<List<Rep>> fetchRepswithSetId(int setID) async {
+    List<Map> results = await _database.query(
+      tableReps,
+      columns: Rep.columns,
+      where: "$columnSetId = ?",
+      whereArgs: [setID]
+    );
+    List<Rep> reps = new List();
+    results.forEach((result) {
+      Rep rep = Rep.fromMap(result);
+      reps.add(rep);
+    });
+    return reps;
+
   }
 }

@@ -78,7 +78,8 @@ class DatabaseTestWidget extends StatelessWidget {
 
   void _insertSession() async {
     // row to insert
-    Map<String, dynamic> row = {columnDate: DateTime.now().toIso8601String()};
+    DateTime now = new DateTime.now();
+    Map<String, dynamic> row = {columnDate: new DateTime(now.year, now.month, now.day).toString()};
     final id = await dbHelper.insertSession(row);
     print('inserted row id: $id');
   }

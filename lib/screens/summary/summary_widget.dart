@@ -34,7 +34,7 @@ class SummaryWidget extends StatelessWidget {
   List<Widget> createSetWidgets(List<Set> sets) {
     List<Widget> list = new List<Widget>();
     for (int i = 0; i < sets.length; i++) {
-      list.add(new SetWidget(sets[i]));
+      list.add(new SetWidget(sets[i], i+1));
     }
     return list;
   }

@@ -13,6 +13,7 @@ class Set {
   static final columns = [
     columnId,
     columnSessionId,
+    columnWeight,
     columnExercise,
     columnScore,
   ];
@@ -21,9 +22,6 @@ class Set {
     this.id = id;
     this.exercise = Exercise.Squat;
     this.reps = new List();
-    reps.add(Rep());
-    reps.add(Rep());
-    reps.add(Rep());
   }
 
   Set.fromMap(Map map) {

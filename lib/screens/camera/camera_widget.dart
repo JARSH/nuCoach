@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nucoach/database/database_helpers.dart';
 import 'package:nucoach/models/session.dart';
+import 'package:nucoach/enums/exercise.dart';
 import 'package:nucoach/screens/summary/summary_widget.dart';
 import 'package:tflite/tflite.dart';
 
@@ -18,8 +19,7 @@ class Camera extends StatefulWidget {
   final Callback setRecognitions;
   int totalReps = 0;
   int currentReps = 0; //completed in current set
-  int currentSet = 1;
-  String exerciseType = 'squats';
+  String exerciseType = Exercise.Squat.toString();
 
   Camera(this.cameras, this.setRecognitions);
 
@@ -31,12 +31,13 @@ class _CameraState extends State<Camera> {
   CameraController controller;
   bool isDetecting = false;
   Future<Session> session;
+  bool calculating = false;
 
   //variables for rep detection
   var previousData;
   bool firstFrame = true;
   int referenceID; //ID of body part used as start/stop reference
-  bool descending = true;
+  bool descending = true; //TODO: should this be true initially?
 
   var angleBuffer = [];
   final dbHelper = DatabaseHelper.instance;
@@ -80,7 +81,7 @@ class _CameraState extends State<Camera> {
         setState(() {});
 
         controller.startImageStream((CameraImage img) {
-          if (!isDetecting) {
+          if (!isDetecting && !calculating) {
             isDetecting = true;
 
             var result = Tflite.runPoseNetOnFrame(
@@ -94,8 +95,7 @@ class _CameraState extends State<Camera> {
               var keyData = recognitions[0]['keypoints'];
               if (firstFrame) {
                 //check scores of leftHip and rightHip, and decide which will be the reference
-                if (recognitions[0]['keypoints'][11]['score'] >
-                    recognitions[0]['keypoints'][12]['score']) {
+                if (keyData[11]['score'] > keyData[12]['score']) {
                   //TODO: deal with exceptions
                   referenceID = 11;
                 } else {
@@ -104,25 +104,24 @@ class _CameraState extends State<Camera> {
                 firstFrame = false;
               } else {
                 if (descending &&
-                    (keyData[referenceID]['y'] >
+                    (keyData[referenceID]['y'] <        // top left is 0,0
                         previousData[referenceID]['y'])) {
                   descending = false;
                   //send previousData to a local buffer to be processed later
                   angleBuffer.add(previousData);
                   widget.currentReps++;
                 } else if (!descending &&
-                    (keyData[referenceID]['y'] <
+                    (keyData[referenceID]['y'] >
                         previousData[referenceID]['y'])) {
                   descending = true;
                 }
               }
-
               previousData = keyData;
-
               isDetecting = false;
             });
             //print(result);
           }
+          //isDetecting = false;
         });
       });
     }
@@ -149,6 +148,11 @@ class _CameraState extends State<Camera> {
       session.sets = new List();
       return session;
     }
+    // else {
+    //   session = Session.fromMap(sessionResult);
+    //   widget.currentSet = session.sets.length;
+
+    // }
     return Session.fromMap(sessionResult);
   }
 
@@ -165,39 +169,50 @@ class _CameraState extends State<Camera> {
       knee = 14;
       ankle = 16;
     }
-    // TODO: insert a set
-    for (var angleData in angleBuffer) {
-      //TODO: concurrent modification exception (growable list)
-      double shoulderHip = math.sqrt(
-          math.pow((angleData[shoulder]['x'] - angleData[hip]['x']), 2) +
-              math.pow((angleData[shoulder]['y'] - angleData[hip]['y']), 2));
-      double hipKnee = math.sqrt(
-          (math.pow((angleData[hip]['x'] - angleData[knee]['x']), 2)) +
-              math.pow((angleData[hip]['y'] - angleData[knee]['y']), 2));
-      double kneeAnkle = math.sqrt(
-          (math.pow((angleData[knee]['x'] - angleData[ankle]['x']), 2)) +
-              math.pow((angleData[knee]['y'] - angleData[ankle]['y']), 2));
-      double shoulderKnee = math.sqrt(
-          (math.pow((angleData[shoulder]['x'] - angleData[knee]['x']), 2)) +
-              math.pow((angleData[shoulder]['y'] - angleData[knee]['y']), 2));
-      double hipAnkle = math.sqrt(
-          (math.pow((angleData[hip]['x'] - angleData[ankle]['x']), 2)) +
-              math.pow((angleData[hip]['y'] - angleData[ankle]['y']), 2));
-      double shk = math.acos((math.pow(shoulderHip, 2) +
-              math.pow(hipKnee, 2) -
-              math.pow(shoulderKnee, 2)) /
-          (2 * shoulderHip * hipKnee));
-      double hka = math.acos((math.pow(hipKnee, 2) +
-              math.pow(kneeAnkle, 2) -
-              math.pow(hipAnkle, 2)) /
-          (2 * hipKnee * kneeAnkle));
+    //TODO: check this loop
+    if (widget.currentReps != 0) {
+      Session s = await session;
       Map<String, dynamic> row = {
-        columnSetId: widget.currentSet,
-        columnScore: 67, //DUMMY VALUE
-        columnShk: shk,
-        columnHka: hka,
+        columnSessionId: s.id,
+        columnExercise: widget.exerciseType,
+        columnWeight: 45,
+        columnScore: 95,
       };
-      await dbHelper.insertRep(row);
+      final id = await dbHelper.insertSet(row);
+      for (var angleData in angleBuffer) {
+        //TODO: concurrent modification exception (growable list)
+        double shoulderHip = math.sqrt(
+            math.pow((angleData[shoulder]['x'] - angleData[hip]['x']), 2) +
+                math.pow((angleData[shoulder]['y'] - angleData[hip]['y']), 2));
+        double hipKnee = math.sqrt(
+            (math.pow((angleData[hip]['x'] - angleData[knee]['x']), 2)) +
+                math.pow((angleData[hip]['y'] - angleData[knee]['y']), 2));
+        double kneeAnkle = math.sqrt(
+            (math.pow((angleData[knee]['x'] - angleData[ankle]['x']), 2)) +
+                math.pow((angleData[knee]['y'] - angleData[ankle]['y']), 2));
+        double shoulderKnee = math.sqrt(
+            (math.pow((angleData[shoulder]['x'] - angleData[knee]['x']), 2)) +
+                math.pow((angleData[shoulder]['y'] - angleData[knee]['y']), 2));
+        double hipAnkle = math.sqrt(
+            (math.pow((angleData[hip]['x'] - angleData[ankle]['x']), 2)) +
+                math.pow((angleData[hip]['y'] - angleData[ankle]['y']), 2));
+        double shk = math.acos((math.pow(shoulderHip, 2) +
+                math.pow(hipKnee, 2) -
+                math.pow(shoulderKnee, 2)) /
+            (2 * shoulderHip * hipKnee));
+        double hka = math.acos((math.pow(hipKnee, 2) +
+                math.pow(kneeAnkle, 2) -
+                math.pow(hipAnkle, 2)) /
+            (2 * hipKnee * kneeAnkle));
+        Map<String, dynamic> row = {
+          columnSetId: id,
+          columnScore: 67, //DUMMY VALUE
+          columnShk: shk,
+          columnHka: hka,
+        };
+        await dbHelper.insertRep(row);
+      }
+      angleBuffer = [];
     }
   }
 
@@ -294,33 +309,25 @@ class _CameraState extends State<Camera> {
         backgroundColor: Colors.redAccent,
         onPressed: () async {
           // open dialog to discard, keep, or keep and export data
+          calculating = true;
           final ConfirmSave action = await _asyncConfirmDialog(context);
-          print(action);
           if (action == ConfirmSave.KEEP || action == ConfirmSave.EXPORT) {
-            print('data has been saved');
             // TODO: process local buffer of angles and send to database
             widget.totalReps += widget.currentReps;
-            //repsPerSet.add(widget.currentReps);
             //store to database
             CalculateAngles();
             if (action == ConfirmSave.EXPORT) {
-              print('recording has been exported');
               // TODO: export video
             }
             final MidSession next = await _asyncMidSessDialog(context);
             if (next == MidSession.END) {
-              print('GET ME OUT');
-              // Navigator to summary
-              Get.to(SummaryWidget(await session));
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //   builder: (context) => CalendarWidget()) //TODO: change this to home widget
-              // );
+              Session se = await session;
+              Get.to(SummaryWidget(se));
             } else {
               widget.currentReps = 0;
-              widget.currentSet++;
-              firstFrame = true;
+              //firstFrame = true;
+              isDetecting = false;
+              calculating = false;
             }
           }
         },
