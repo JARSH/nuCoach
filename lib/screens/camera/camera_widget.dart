@@ -207,8 +207,8 @@ class _CameraState extends State<Camera> {
         Map<String, dynamic> row = {
           columnSetId: id,
           columnScore: 67, //DUMMY VALUE
-          columnShk: shk,
-          columnHka: hka,
+          columnShk: (shk*180/math.pi).round(),
+          columnHka: (hka*180/math.pi).round(),
         };
         await dbHelper.insertRep(row);
       }

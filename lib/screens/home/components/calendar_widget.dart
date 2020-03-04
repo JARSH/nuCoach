@@ -55,12 +55,12 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     final sessionResult = await dbHelper.fetchSessionByDate(selected.toString());
     if (sessionResult != null && sessionResult.length != 0) {
       Session session = Session.fromMap(sessionResult);
-      session.sets = new List<Set>();
-      final setsResult = await dbHelper.fetchSetsWithSessionId(session.id);
-      for (var set in setsResult) {
-        set.reps = await dbHelper.fetchRepswithSetId(set.id);
-        session.sets.add(set);
-      }
+      // session.sets = new List<Set>();
+      // final setsResult = await dbHelper.fetchSetsWithSessionId(session.id);
+      // for (var set in setsResult) {
+      //   set.reps = await dbHelper.fetchRepswithSetId(set.id);
+      //   session.sets.add(set);
+      // }
       return session;
     } else {
       return null;
