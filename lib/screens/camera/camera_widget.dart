@@ -109,7 +109,7 @@ class _CameraState extends State<Camera> {
                   descending = false;
                   //send previousData to a local buffer to be processed later
                   angleBuffer.add(previousData);
-                  widget.currentReps++;
+                  //widget.currentReps++;
                 } else if (!descending &&
                     (keyData[referenceID]['y'] >
                         previousData[referenceID]['y'])) {
@@ -157,7 +157,8 @@ class _CameraState extends State<Camera> {
   }
 
   void CalculateAngles() async {
-    int shoulder, hip, knee, ankle;
+    int shoulder, hip, knee, ankle, id;
+    bool firstRep = true;
     if (referenceID == 11) {
       shoulder = 5;
       hip = 11;
@@ -169,47 +170,54 @@ class _CameraState extends State<Camera> {
       knee = 14;
       ankle = 16;
     }
-    //TODO: check this loop
-    if (widget.currentReps != 0) {
-      Session s = await session;
-      Map<String, dynamic> row = {
-        columnSessionId: s.id,
-        columnExercise: widget.exerciseType,
-        columnWeight: 45,
-        columnScore: 95,
-      };
-      final id = await dbHelper.insertSet(row);
-      for (var angleData in angleBuffer) {
-        //TODO: concurrent modification exception (growable list)
-        double shoulderHip = math.sqrt(
-            math.pow((angleData[shoulder]['x'] - angleData[hip]['x']), 2) +
-                math.pow((angleData[shoulder]['y'] - angleData[hip]['y']), 2));
-        double hipKnee = math.sqrt(
-            (math.pow((angleData[hip]['x'] - angleData[knee]['x']), 2)) +
-                math.pow((angleData[hip]['y'] - angleData[knee]['y']), 2));
-        double kneeAnkle = math.sqrt(
-            (math.pow((angleData[knee]['x'] - angleData[ankle]['x']), 2)) +
-                math.pow((angleData[knee]['y'] - angleData[ankle]['y']), 2));
-        double shoulderKnee = math.sqrt(
-            (math.pow((angleData[shoulder]['x'] - angleData[knee]['x']), 2)) +
-                math.pow((angleData[shoulder]['y'] - angleData[knee]['y']), 2));
-        double hipAnkle = math.sqrt(
-            (math.pow((angleData[hip]['x'] - angleData[ankle]['x']), 2)) +
-                math.pow((angleData[hip]['y'] - angleData[ankle]['y']), 2));
-        double shk = math.acos((math.pow(shoulderHip, 2) +
-                math.pow(hipKnee, 2) -
-                math.pow(shoulderKnee, 2)) /
-            (2 * shoulderHip * hipKnee));
-        double hka = math.acos((math.pow(hipKnee, 2) +
-                math.pow(kneeAnkle, 2) -
-                math.pow(hipAnkle, 2)) /
-            (2 * hipKnee * kneeAnkle));
+    // //TODO: check this loop
+    // if (widget.currentReps != 0) {
+    //   widget.currentReps = 0;
+      
+    for (var angleData in angleBuffer) {
+      //TODO: concurrent modification exception (growable list)
+      double shoulderHip = math.sqrt(
+          math.pow((angleData[shoulder]['x'] - angleData[hip]['x']), 2) +
+              math.pow((angleData[shoulder]['y'] - angleData[hip]['y']), 2));
+      double hipKnee = math.sqrt(
+          (math.pow((angleData[hip]['x'] - angleData[knee]['x']), 2)) +
+              math.pow((angleData[hip]['y'] - angleData[knee]['y']), 2));
+      double kneeAnkle = math.sqrt(
+          (math.pow((angleData[knee]['x'] - angleData[ankle]['x']), 2)) +
+              math.pow((angleData[knee]['y'] - angleData[ankle]['y']), 2));
+      double shoulderKnee = math.sqrt(
+          (math.pow((angleData[shoulder]['x'] - angleData[knee]['x']), 2)) +
+              math.pow((angleData[shoulder]['y'] - angleData[knee]['y']), 2));
+      double hipAnkle = math.sqrt(
+          (math.pow((angleData[hip]['x'] - angleData[ankle]['x']), 2)) +
+              math.pow((angleData[hip]['y'] - angleData[ankle]['y']), 2));
+      double shk = math.acos((math.pow(shoulderHip, 2) +
+              math.pow(hipKnee, 2) -
+              math.pow(shoulderKnee, 2)) /
+          (2 * shoulderHip * hipKnee));
+      double hka = math.acos((math.pow(hipKnee, 2) +
+              math.pow(kneeAnkle, 2) -
+              math.pow(hipAnkle, 2)) /
+          (2 * hipKnee * kneeAnkle));
+      if (shk > .175 && shk < 2.094 && hka > .3491 && hka < 2.094) {// 10<shk<120, 20<hka<120
+        if(firstRep) {
+          Session s = await session;
+          Map<String, dynamic> row = {
+            columnSessionId: s.id,
+            columnExercise: widget.exerciseType,
+            columnWeight: 45,
+            columnScore: 95,
+          };
+          id = await dbHelper.insertSet(row);
+          firstRep = false;
+        }
         Map<String, dynamic> row = {
           columnSetId: id,
           columnScore: 67, //DUMMY VALUE
-          columnShk: (shk*180/math.pi).round(),
-          columnHka: (hka*180/math.pi).round(),
+          columnShk: shk,
+          columnHka: hka,
         };
+        widget.currentReps++;
         await dbHelper.insertRep(row);
       }
       angleBuffer = [];
@@ -313,9 +321,9 @@ class _CameraState extends State<Camera> {
           final ConfirmSave action = await _asyncConfirmDialog(context);
           if (action == ConfirmSave.KEEP || action == ConfirmSave.EXPORT) {
             // TODO: process local buffer of angles and send to database
-            widget.totalReps += widget.currentReps;
             //store to database
             CalculateAngles();
+            widget.totalReps += widget.currentReps;
             if (action == ConfirmSave.EXPORT) {
               // TODO: export video
             }
