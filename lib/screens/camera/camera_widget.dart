@@ -32,6 +32,9 @@ class _CameraState extends State<Camera> {
   bool isDetecting = false;
   Future<Session> session;
   bool calculating = false;
+  bool waiting = true; //waiting for user to click "DONE"
+  bool _cameraOn = true; //allows the controller to be 'off' while midsession dialogs are displayed
+
 
   //variables for rep detection
   var previousData;
@@ -51,6 +54,7 @@ class _CameraState extends State<Camera> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await showDialog<String>(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) => new AlertDialog(
           // title: new Text("title"),
           content: new Text(
@@ -59,6 +63,7 @@ class _CameraState extends State<Camera> {
             new FlatButton(
               child: new Text("DONE"),
               onPressed: () {
+                waiting = false;
                 Navigator.of(context).pop();
               },
             ),
@@ -81,7 +86,7 @@ class _CameraState extends State<Camera> {
         setState(() {});
 
         controller.startImageStream((CameraImage img) {
-          if (!isDetecting && !calculating) {
+          if (!isDetecting && !calculating) { //may have dependency on waiting flag
             isDetecting = true;
 
             var result = Tflite.runPoseNetOnFrame(
@@ -265,7 +270,7 @@ class _CameraState extends State<Camera> {
         return AlertDialog(
           content: Text(
               'You just did ${widget.currentReps} reps of ${widget.exerciseType} and have done ${widget.totalReps} '
-              '${widget.exerciseType} reps in total!'),
+              '${widget.exerciseType} reps in total!'),   //TODO: figure this out (force wait) or remove
           actions: <Widget>[
             FlatButton(
               child: const Text('END SESSION'),
@@ -277,6 +282,11 @@ class _CameraState extends State<Camera> {
               child: const Text('CONTINUE WORKING OUT'),
               onPressed: () {
                 Navigator.of(context).pop(MidSession.CONTINUE);
+                setState(() {
+                  _cameraOn = true;
+                });
+
+                //TODO: should bring up alert dialog again here to reposition
               },
             ),
           ],
@@ -311,11 +321,14 @@ class _CameraState extends State<Camera> {
         maxWidth: screenRatio > previewRatio
             ? screenH / previewH * previewW
             : screenW,
-        child: CameraPreview(controller),
+        child: _cameraOn ? CameraPreview(controller) : Container(),
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.redAccent,
         onPressed: () async {
+          setState(() {
+            _cameraOn = false;
+          });
           // open dialog to discard, keep, or keep and export data
           calculating = true;
           final ConfirmSave action = await _asyncConfirmDialog(context);
@@ -327,16 +340,17 @@ class _CameraState extends State<Camera> {
             if (action == ConfirmSave.EXPORT) {
               // TODO: export video
             }
-            final MidSession next = await _asyncMidSessDialog(context);
-            if (next == MidSession.END) {
-              Session se = await session;
-              Get.to(SummaryWidget(se));
-            } else {
-              widget.currentReps = 0;
-              //firstFrame = true;
-              isDetecting = false;
-              calculating = false;
-            }
+          }
+          
+          final MidSession next = await _asyncMidSessDialog(context);
+          if (next == MidSession.END) {
+            Session se = await session;
+            Get.to(SummaryWidget(se));
+          } else {
+            widget.currentReps = 0;
+            //firstFrame = true;
+            isDetecting = false;
+            calculating = false;
           }
         },
         child: Icon(Icons.stop),
