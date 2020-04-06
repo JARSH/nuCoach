@@ -1,18 +1,15 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class DataSample {
-  double temperature1;
-  double temperature2;
-  double waterpHlevel;
+  double pressure;
   DateTime timestamp;
 
   DataSample({
-    this.temperature1,
-    this.temperature2,
-    this.waterpHlevel,
+    this.pressure,
     this.timestamp,
   });
 }
@@ -36,32 +33,59 @@ class BackgroundCollectingTask extends Model {
   // @TODO ? should be shrinked at some point, endless colleting data would cause memory shortage.
   List<DataSample> samples = List<DataSample>();
 
+  static int row = 4;
+  static int col = 4;
+  var matrix = List.generate(row, (i) => List(col), growable: false);
+
   bool inProgress;
 
   BackgroundCollectingTask._fromConnection(this._connection) {
     _connection.input.listen((data) {
       _buffer += data;
 
-      while (true) {
-        // If there is a sample, and it is full sent
-        int index = _buffer.indexOf('t'.codeUnitAt(0));
-        if (index >= 0 && _buffer.length - index >= 7) {
-          final DataSample sample = DataSample(
-              temperature1: (_buffer[index + 1] + _buffer[index + 2] / 100),
-              temperature2: (_buffer[index + 3] + _buffer[index + 4] / 100),
-              waterpHlevel: (_buffer[index + 5] + _buffer[index + 6] / 100),
-              timestamp: DateTime.now());
-          _buffer.removeRange(0, index + 7);
+      for (int i = 0; i < col; i++) {
+        for (int j = 0; j < row; j++) {
+          while (true) {
+            int index = _buffer.indexOf('p'.codeUnitAt(0));
+            if (index >= 0 && _buffer.length - index >= 7) {
+              final DataSample sample = DataSample(
+                  pressure: (_buffer[index + 1] + _buffer[index + 2] / 100),
+                  timestamp: DateTime.now());
+              _buffer.removeRange(0, index + 7);
 
-          samples.add(sample);
-          notifyListeners(); // Note: It shouldn't be invoked very often - in this example data comes at every second, but if there would be more data, it should update (including repaint of graphs) in some fixed interval instead of after every sample.
-          //print("${sample.timestamp.toString()} -> ${sample.temperature1} / ${sample.temperature2}");
-        }
-        // Otherwise break
-        else {
-          break;
+              if (sample.pressure == null) {
+                break;
+              } else {
+                matrix[j][i] = sample.pressure;
+                notifyListeners();
+              }
+            } else {
+              break;
+            }
+          }
         }
       }
+
+//      while (true) {
+//        // If there is a sample, and it is full sent
+//        int index = _buffer.indexOf('p'.codeUnitAt(0));
+//        if (index >= 0 && _buffer.length - index >= 7) {
+//          final DataSample sample = DataSample(
+//              temperature1: (_buffer[index + 1] + _buffer[index + 2] / 100),
+//              temperature2: (_buffer[index + 3] + _buffer[index + 4] / 100),
+//              waterpHlevel: (_buffer[index + 5] + _buffer[index + 6] / 100),
+//              timestamp: DateTime.now());
+//          _buffer.removeRange(0, index + 7);
+//
+//          samples.add(sample);
+//          notifyListeners(); // Note: It shouldn't be invoked very often - in this example data comes at every second, but if there would be more data, it should update (including repaint of graphs) in some fixed interval instead of after every sample.
+//          //print("${sample.timestamp.toString()} -> ${sample.temperature1} / ${sample.temperature2}");
+//        }
+//        // Otherwise break
+//        else {
+//          break;
+//        }
+//      }
     }).onDone(() {
       inProgress = false;
       notifyListeners();
