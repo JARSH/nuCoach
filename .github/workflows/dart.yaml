@@ -11,7 +11,7 @@ jobs:
       image:  google/dart:latest
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: subosito/flutter-action@v1.2.0
     - name: Install dependencies
       run: flutter pub get
     - name: Run tests
