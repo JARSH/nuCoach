@@ -6,6 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'components/calendar_widget.dart';
 import 'components/session_start.dart';
+import 'components/settings_widget.dart';
 
 class Home extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -39,7 +40,7 @@ class _HomeState extends State<Home> {
     CalendarWidget(),
     Session(Colors.tealAccent, "Begin a new\nworkout session!",
         TextStyle(color: Colors.black, fontSize: 30), cameras),
-    DatabaseTestWidget()
+    SettingsWidget()
   ];
 
   @override
