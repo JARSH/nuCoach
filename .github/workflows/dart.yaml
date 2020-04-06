@@ -11,8 +11,12 @@ jobs:
       image:  google/dart:latest
 
     steps:
-    - uses: subosito/flutter-action@v1.2.0
-    - name: Install dependencies
-      run: flutter pub get
-    - name: Run tests
-      run: flutter pub run test
+    - name: install dependencies
+      uses: steebchen/flutter@v1.0.0
+      with:
+        args: pub get
+
+    - name: run tests
+      uses: steebchen/flutter@v1.0.0
+      with:
+        args: test
