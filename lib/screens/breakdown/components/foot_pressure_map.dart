@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 
 class FootPressureMap extends StatelessWidget {
-  List<List<int>> fpreadings = [
-    [10, 10, 10, 10, 10],
-    [10, 3, 3, 3, 10],
-    [10, 3, 1, 3, 10],
-    [10, 3, 3, 3, 10],
-    [10, 10, 10, 10, 10],
-  ];
+//  List<List<int>> fpreadings = [
+//    [10, 10, 10, 10, 10],
+//    [10, 3, 3, 3, 10],
+//    [10, 3, 1, 3, 10],
+//    [10, 3, 3, 3, 10],
+//    [10, 10, 10, 10, 10],
+//  ];
+
+  List<List> fpreadings;
+
+  FootPressureMap(this.fpreadings);
 
   @override
   Widget build(BuildContext context) {
