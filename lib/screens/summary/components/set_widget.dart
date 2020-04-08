@@ -6,8 +6,9 @@ import 'package:nucoach/screens/breakdown/breakdown_widget.dart';
 
 class SetWidget extends StatelessWidget {
   final Set set;
+  final int listNum;
 
-  SetWidget(this.set);
+  SetWidget(this.set, this.listNum);
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,7 @@ class SetWidget extends StatelessWidget {
       header: Padding(
         padding: EdgeInsets.all(10),
         child: Text(
-          "Set " + set.id.toString() + " Weight: " + set.weight.toString(),
+          "Set " + (listNum + 1).toString() + " Weight: " + set.weight.toString(),
           style: Theme.of(context).textTheme.body2,
         ),
       ),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nucoach/database/database_helpers.dart';
 import 'package:nucoach/models/session.dart';
+import 'package:nucoach/enums/exercise.dart';
 import 'package:nucoach/screens/summary/summary_widget.dart';
 import 'package:tflite/tflite.dart';
 
@@ -18,8 +19,7 @@ class Camera extends StatefulWidget {
   final Callback setRecognitions;
   int totalReps = 0;
   int currentReps = 0; //completed in current set
-  int currentSet = 1;
-  String exerciseType = 'squats';
+  String exerciseType = Exercise.Squat.toString();
 
   Camera(this.cameras, this.setRecognitions);
 
@@ -31,6 +31,10 @@ class _CameraState extends State<Camera> {
   CameraController controller;
   bool isDetecting = false;
   Future<Session> session;
+  bool calculating = false;
+  bool waiting = true; //waiting for user to click "DONE"
+  bool _cameraOn = true; //allows the controller to be 'off' while midsession dialogs are displayed
+
 
   //variables for rep detection
   var previousData;
@@ -44,12 +48,12 @@ class _CameraState extends State<Camera> {
   @override
   void initState() {
     super.initState();
-
     session = _querySessions();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await showDialog<String>(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) => new AlertDialog(
           // title: new Text("title"),
           content: new Text(
@@ -58,6 +62,7 @@ class _CameraState extends State<Camera> {
             new FlatButton(
               child: new Text("DONE"),
               onPressed: () {
+                waiting = false;
                 Navigator.of(context).pop();
               },
             ),
@@ -80,7 +85,7 @@ class _CameraState extends State<Camera> {
         setState(() {});
 
         controller.startImageStream((CameraImage img) {
-          if (!isDetecting) {
+          if (!isDetecting && !calculating) { //may have dependency on waiting flag
             isDetecting = true;
 
             var result = Tflite.runPoseNetOnFrame(
@@ -94,9 +99,7 @@ class _CameraState extends State<Camera> {
               var keyData = recognitions[0]['keypoints'];
               if (firstFrame) {
                 //check scores of leftHip and rightHip, and decide which will be the reference
-                if (recognitions[0]['keypoints'][11]['score'] >
-                    recognitions[0]['keypoints'][12]['score']) {
-                  //TODO: deal with exceptions
+                if (keyData[11]['score'] > keyData[12]['score']) {
                   referenceID = 11;
                 } else {
                   referenceID = 12;
@@ -104,25 +107,24 @@ class _CameraState extends State<Camera> {
                 firstFrame = false;
               } else {
                 if (descending &&
-                    (keyData[referenceID]['y'] >
+                    (keyData[referenceID]['y'] <        // top left is 0,0
                         previousData[referenceID]['y'])) {
                   descending = false;
                   //send previousData to a local buffer to be processed later
                   angleBuffer.add(previousData);
-                  widget.currentReps++;
+                  //widget.currentReps++;
                 } else if (!descending &&
-                    (keyData[referenceID]['y'] <
+                    (keyData[referenceID]['y'] >
                         previousData[referenceID]['y'])) {
                   descending = true;
                 }
               }
-
               previousData = keyData;
-
               isDetecting = false;
             });
             //print(result);
           }
+          //isDetecting = false;
         });
       });
     }
@@ -149,11 +151,17 @@ class _CameraState extends State<Camera> {
       session.sets = new List();
       return session;
     }
+    // else {
+    //   session = Session.fromMap(sessionResult);
+    //   widget.currentSet = session.sets.length;
+
+    // }
     return Session.fromMap(sessionResult);
   }
 
-  void CalculateAngles() async {
-    int shoulder, hip, knee, ankle;
+  CalculateAngles() async {
+    int shoulder, hip, knee, ankle, id;
+    bool firstRep = true;
     if (referenceID == 11) {
       shoulder = 5;
       hip = 11;
@@ -165,9 +173,8 @@ class _CameraState extends State<Camera> {
       knee = 14;
       ankle = 16;
     }
-    // TODO: insert a set
+      
     for (var angleData in angleBuffer) {
-      //TODO: concurrent modification exception (growable list)
       double shoulderHip = math.sqrt(
           math.pow((angleData[shoulder]['x'] - angleData[hip]['x']), 2) +
               math.pow((angleData[shoulder]['y'] - angleData[hip]['y']), 2));
@@ -191,13 +198,32 @@ class _CameraState extends State<Camera> {
               math.pow(kneeAnkle, 2) -
               math.pow(hipAnkle, 2)) /
           (2 * hipKnee * kneeAnkle));
-      Map<String, dynamic> row = {
-        columnSetId: widget.currentSet,
-        columnScore: 67, //DUMMY VALUE
-        columnShk: shk,
-        columnHka: hka,
-      };
-      await dbHelper.insertRep(row);
+      double sa_dist = angleData[ankle]['x'] - angleData[shoulder]['x'];
+      double kag = math.asin((angleData[ankle]['y']-angleData[knee]['y'])/kneeAnkle);
+      if (shk > .175 && shk < 2.094 && hka > .3491 && hka < 2.094) {// 10<shk<120, 20<hka<120
+        if(firstRep) {
+          Session s = await session;
+          Map<String, dynamic> row = {
+            columnSessionId: s.id,
+            columnExercise: widget.exerciseType,
+            columnWeight: 45,
+            columnScore: 95,
+          };
+          id = await dbHelper.insertSet(row);
+          firstRep = false;
+        }
+        Map<String, dynamic> row = {
+          columnSetId: id,
+          columnScore: 5-25*sa_dist.abs(), //DUMMY VALUE
+          columnShk: shk,
+          columnHka: hka,
+          columnSA: sa_dist,
+          columnKag: kag
+        };
+        widget.currentReps++;
+        await dbHelper.insertRep(row);
+      }
+      angleBuffer = [];
     }
   }
 
@@ -223,11 +249,11 @@ class _CameraState extends State<Camera> {
                 Navigator.of(context).pop(ConfirmSave.KEEP);
               },
             ),
-            FlatButton(
-                child: const Text('KEEP AND EXPORT'),
-                onPressed: () {
-                  Navigator.of(context).pop(ConfirmSave.EXPORT);
-                })
+            // FlatButton(
+            //     child: const Text('KEEP AND EXPORT'),
+            //     onPressed: () {
+            //       Navigator.of(context).pop(ConfirmSave.EXPORT);
+            //     })
           ],
         );
       },
@@ -241,8 +267,7 @@ class _CameraState extends State<Camera> {
       builder: (BuildContext context) {
         return AlertDialog(
           content: Text(
-              'You just did ${widget.currentReps} reps of ${widget.exerciseType} and have done ${widget.totalReps} '
-              '${widget.exerciseType} reps in total!'),
+              'You just did ${widget.currentReps} squats and have done ${widget.totalReps} reps in total!'),
           actions: <Widget>[
             FlatButton(
               child: const Text('END SESSION'),
@@ -254,6 +279,11 @@ class _CameraState extends State<Camera> {
               child: const Text('CONTINUE WORKING OUT'),
               onPressed: () {
                 Navigator.of(context).pop(MidSession.CONTINUE);
+                setState(() {
+                  _cameraOn = true;
+                });
+
+                //TODO: should bring up alert dialog again here to reposition
               },
             ),
           ],
@@ -288,40 +318,35 @@ class _CameraState extends State<Camera> {
         maxWidth: screenRatio > previewRatio
             ? screenH / previewH * previewW
             : screenW,
-        child: CameraPreview(controller),
+        child: _cameraOn ? CameraPreview(controller) : Container(),
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.redAccent,
         onPressed: () async {
+          setState(() {
+            _cameraOn = false;
+          });
           // open dialog to discard, keep, or keep and export data
+          calculating = true;
           final ConfirmSave action = await _asyncConfirmDialog(context);
-          print(action);
           if (action == ConfirmSave.KEEP || action == ConfirmSave.EXPORT) {
-            print('data has been saved');
-            // TODO: process local buffer of angles and send to database
-            widget.totalReps += widget.currentReps;
-            //repsPerSet.add(widget.currentReps);
             //store to database
-            CalculateAngles();
+            await CalculateAngles();
+            widget.totalReps += widget.currentReps;
             if (action == ConfirmSave.EXPORT) {
-              print('recording has been exported');
               // TODO: export video
             }
-            final MidSession next = await _asyncMidSessDialog(context);
-            if (next == MidSession.END) {
-              print('GET ME OUT');
-              // Navigator to summary
-              Get.to(SummaryWidget(await session));
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //   builder: (context) => CalendarWidget()) //TODO: change this to home widget
-              // );
-            } else {
-              widget.currentReps = 0;
-              widget.currentSet++;
-              firstFrame = true;
-            }
+          }
+          
+          final MidSession next = await _asyncMidSessDialog(context);
+          if (next == MidSession.END) {
+            Session se = await session;
+            Get.to(SummaryWidget(se));
+          } else {
+            widget.currentReps = 0;
+            //firstFrame = true;
+            isDetecting = false;
+            calculating = false;
           }
         },
         child: Icon(Icons.stop),
