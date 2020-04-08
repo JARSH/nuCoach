@@ -40,7 +40,7 @@ class _CameraState extends State<Camera> {
   var previousData;
   bool firstFrame = true;
   int referenceID; //ID of body part used as start/stop reference
-  bool descending = true; //TODO: should this be true initially?
+  bool descending = true;
 
   var angleBuffer = [];
   final dbHelper = DatabaseHelper.instance;
@@ -48,7 +48,6 @@ class _CameraState extends State<Camera> {
   @override
   void initState() {
     super.initState();
-
     session = _querySessions();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -101,7 +100,6 @@ class _CameraState extends State<Camera> {
               if (firstFrame) {
                 //check scores of leftHip and rightHip, and decide which will be the reference
                 if (keyData[11]['score'] > keyData[12]['score']) {
-                  //TODO: deal with exceptions
                   referenceID = 11;
                 } else {
                   referenceID = 12;
@@ -161,7 +159,7 @@ class _CameraState extends State<Camera> {
     return Session.fromMap(sessionResult);
   }
 
-  void CalculateAngles() async {
+  CalculateAngles() async {
     int shoulder, hip, knee, ankle, id;
     bool firstRep = true;
     if (referenceID == 11) {
@@ -175,12 +173,8 @@ class _CameraState extends State<Camera> {
       knee = 14;
       ankle = 16;
     }
-    // //TODO: check this loop
-    // if (widget.currentReps != 0) {
-    //   widget.currentReps = 0;
       
     for (var angleData in angleBuffer) {
-      //TODO: concurrent modification exception (growable list)
       double shoulderHip = math.sqrt(
           math.pow((angleData[shoulder]['x'] - angleData[hip]['x']), 2) +
               math.pow((angleData[shoulder]['y'] - angleData[hip]['y']), 2));
@@ -204,6 +198,8 @@ class _CameraState extends State<Camera> {
               math.pow(kneeAnkle, 2) -
               math.pow(hipAnkle, 2)) /
           (2 * hipKnee * kneeAnkle));
+      double sa_dist = angleData[ankle]['x'] - angleData[shoulder]['x'];
+      double kag = math.asin((angleData[ankle]['y']-angleData[knee]['y'])/kneeAnkle);
       if (shk > .175 && shk < 2.094 && hka > .3491 && hka < 2.094) {// 10<shk<120, 20<hka<120
         if(firstRep) {
           Session s = await session;
@@ -218,9 +214,11 @@ class _CameraState extends State<Camera> {
         }
         Map<String, dynamic> row = {
           columnSetId: id,
-          columnScore: 67, //DUMMY VALUE
+          columnScore: 5-25*sa_dist.abs(), //DUMMY VALUE
           columnShk: shk,
           columnHka: hka,
+          columnSA: sa_dist,
+          columnKag: kag
         };
         widget.currentReps++;
         await dbHelper.insertRep(row);
@@ -251,11 +249,11 @@ class _CameraState extends State<Camera> {
                 Navigator.of(context).pop(ConfirmSave.KEEP);
               },
             ),
-            FlatButton(
-                child: const Text('KEEP AND EXPORT'),
-                onPressed: () {
-                  Navigator.of(context).pop(ConfirmSave.EXPORT);
-                })
+            // FlatButton(
+            //     child: const Text('KEEP AND EXPORT'),
+            //     onPressed: () {
+            //       Navigator.of(context).pop(ConfirmSave.EXPORT);
+            //     })
           ],
         );
       },
@@ -269,8 +267,7 @@ class _CameraState extends State<Camera> {
       builder: (BuildContext context) {
         return AlertDialog(
           content: Text(
-              'You just did ${widget.currentReps} reps of ${widget.exerciseType} and have done ${widget.totalReps} '
-              '${widget.exerciseType} reps in total!'),   //TODO: figure this out (force wait) or remove
+              'You just did ${widget.currentReps} squats and have done ${widget.totalReps} reps in total!'),
           actions: <Widget>[
             FlatButton(
               child: const Text('END SESSION'),
@@ -333,9 +330,8 @@ class _CameraState extends State<Camera> {
           calculating = true;
           final ConfirmSave action = await _asyncConfirmDialog(context);
           if (action == ConfirmSave.KEEP || action == ConfirmSave.EXPORT) {
-            // TODO: process local buffer of angles and send to database
             //store to database
-            CalculateAngles();
+            await CalculateAngles();
             widget.totalReps += widget.currentReps;
             if (action == ConfirmSave.EXPORT) {
               // TODO: export video

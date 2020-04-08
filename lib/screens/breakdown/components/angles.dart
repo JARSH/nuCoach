@@ -5,19 +5,24 @@ class Angles extends StatelessWidget {
   static double size = 500;    //size of CustomPaint widget
   double shk;
   double hka;
+  double sa_dist;   //horizontal distance from shoulder to ankle
+  double kag;     //angle of ankle
   Offset head;
   Offset foot;
   Offset shoulderOffset;
   Offset ankleOffset;
-  final double backLength = 0.4*size;
+  Offset hipOffset;     //  = new Offset(0.6*size, 0.6*size);  //(hip on right) no longer constant
+  final double backLength = 0.375*size;
   final double calfLength = 0.3*size;
-  final Offset hipOffset = new Offset(0.6*size, 0.6*size);  //(hip on right)
-  final Offset kneeOffset = new Offset(0.3*size, 0.6*size); //(knee on left)
+  final double thighLength = 0.3*size;
+  final Offset kneeOffset = new Offset(0.3*size, 0.75*size); //(knee on left)
 
 
-  Angles(double shk, double hka) {
+  Angles(double shk, double hka, double sa_dist, double kag) {
     this.shk = shk;
     this.hka = hka;
+    this.sa_dist = sa_dist;
+    this.kag = kag;
   }
 
   @override
@@ -30,13 +35,19 @@ class Angles extends StatelessWidget {
   }
 
   _calculatePoints() {
-    double shoulderX, shoulderY, ankleX, ankleY;
-    shoulderX = hipOffset.dx - math.cos(shk)*backLength;
-    shoulderY = hipOffset.dy - math.sin(shk)*backLength;
-    ankleX = kneeOffset.dx + math.cos(hka)*calfLength;
-    ankleY = kneeOffset.dy + math.sin(hka)*calfLength;
-    shoulderOffset = new Offset(shoulderX, shoulderY);
+    double hipX, hipY, shoulderX, shoulderY, ankleX, ankleY;
+    ankleX = kneeOffset.dx + math.cos(kag)*calfLength;
+    ankleY = kneeOffset.dy + math.sin(kag)*calfLength;
     ankleOffset = new Offset(ankleX, ankleY);
+
+    hipX = kneeOffset.dx + thighLength*math.sin(hka)*math.cos(math.pi/2-kag) + thighLength*math.cos(hka)*math.sin(math.pi/2-kag);
+    hipY = kneeOffset.dy - thighLength*math.sin(hka)*math.sin(math.pi/2-kag) + thighLength*math.cos(hka)*math.cos(math.pi/2-kag);
+    hipOffset = new Offset(hipX, hipY);
+
+    double rot = hka-kag;
+    shoulderX = hipOffset.dx - (backLength*math.cos(shk)*math.cos(rot) + backLength*math.sin(shk)*math.sin(rot));
+    shoulderY = hipOffset.dy - (-math.cos(shk)*backLength*math.sin(rot) + backLength*math.sin(shk)*math.cos(rot));
+    shoulderOffset = new Offset(shoulderX, shoulderY);
   }
 
   

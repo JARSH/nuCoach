@@ -20,6 +20,8 @@ final String columnScore = 'score';
 final String columnShk = 'shk';
 final String columnHka = 'hka';
 final String columnFpm = 'fpm';
+final String columnSA = 'sa_dist';
+final String columnKag = 'kag';
 
 class DatabaseHelper {
   static final _databaseName = "MyDatabase.db";
@@ -62,7 +64,7 @@ class DatabaseHelper {
             $columnSessionId INTEGER,
             $columnExercise TEXT,
             $columnWeight INTEGER,
-            $columnScore INTEGER
+            $columnScore DOUBLE
       )
       ''');
     await db.execute('''
@@ -72,6 +74,8 @@ class DatabaseHelper {
             $columnScore INTEGER,
             $columnShk INTEGER,
             $columnHka INTEGER,
+            $columnSA INTEGER,
+            $columnKag INTEGER,
             $columnFpm TEXT
       )
       ''');

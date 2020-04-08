@@ -72,7 +72,6 @@ class SummaryWidgetState extends State<SummaryWidget> {
     return list;
   }
 
-  //TODO: figure out why this broke calendar nav and camera nav
   _populateSession() async {
     DatabaseHelper dbHelper = DatabaseHelper.instance;
     widget.session.sets = new List<Set>();

@@ -11,7 +11,7 @@ class Rep {
   Rep() {
     this.id = 1;
     this.score = 100;
-    this.angles = new Angles(90, 50);
+    this.angles = new Angles(90, 50, 0, 70);
     this.fpmap = new FootPressureMap();
   }
 
@@ -21,13 +21,15 @@ class Rep {
     columnScore,
     columnShk,
     columnHka,
+    columnSA,
+    columnKag,
     columnFpm,
   ];
 
   Rep.fromMap(Map map) {
     this.id = map[columnId];
     this.score = map[columnScore];
-    this.angles = new Angles(map[columnShk].toDouble(), map[columnHka].toDouble());
+    this.angles = new Angles(map[columnShk].toDouble(), map[columnHka].toDouble(), map[columnSA].toDouble(), map[columnKag].toDouble());
     this.fpmap = new FootPressureMap();
   }
 
