@@ -33,13 +33,14 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   Map<PermissionGroup, PermissionStatus> permissions;
   int _selectedIndex;
+  String _title;
 
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   final List<Widget> _children = [
-    CalendarWidget(),
     Session(Colors.tealAccent, "Begin a new\nworkout session!",
         TextStyle(color: Colors.black, fontSize: 30), cameras),
+    CalendarWidget(),
     SettingsWidget()
   ];
 
@@ -48,6 +49,7 @@ class _HomeState extends State<Home> {
     super.initState();
     getPermission();
     _selectedIndex = widget.initialIndex;
+    _title = 'nuCoach';
   }
 
   @override
@@ -60,30 +62,36 @@ class _HomeState extends State<Home> {
     // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        title: Text('nuCoach'),
+        title: Text(_title),
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: _children[_selectedIndex],
       ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        tooltip: 'New Workout',
+        onPressed: (){}
+      ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
           new BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            title: Text('Home'),
+          ),
+          new BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today),
-            title: Text('Stats'),
+            title: Text('Activity'),
           ),
           new BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle),
-            title: Text('Start Session'),
-          ),
-          new BottomNavigationBarItem(
-            icon: Icon(Icons.settings_applications),
+            icon: Icon(Icons.settings),
             title: Text('Settings'),
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.black26,
         onTap: _onItemTapped,
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
@@ -97,6 +105,13 @@ class _HomeState extends State<Home> {
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
       _selectedIndex = index;
+      switch(index) {
+        case 0: { _title = 'nuCoach'; }
+        break;
+        case 1: { _title = 'Activity'; }
+        break;
+        case 2: { _title = 'Settings'; }
+      }
     });
   }
 
