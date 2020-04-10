@@ -36,7 +36,7 @@ class SessionState extends State<Session> {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => Camera(widget.cameras, setRecognitions)),
+              builder: (context) => Camera(widget.cameras)),
         );
       },
       color: widget.color,

@@ -16,12 +16,11 @@ typedef void Callback(List<dynamic> list, int h, int w);
 
 class Camera extends StatefulWidget {
   final List<CameraDescription> cameras;
-  final Callback setRecognitions;
   int totalReps = 0;
   int currentReps = 0; //completed in current set
   String exerciseType = Exercise.Squat.toString();
 
-  Camera(this.cameras, this.setRecognitions);
+  Camera(this.cameras);
 
   @override
   _CameraState createState() => new _CameraState();

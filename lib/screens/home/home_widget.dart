@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'components/calendar_widget.dart';
 import 'components/session_start.dart';
 import 'components/settings_widget.dart';
+import '../camera/camera_widget.dart';
 
 class Home extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -72,7 +73,13 @@ class _HomeState extends State<Home> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         tooltip: 'New Workout',
-        onPressed: (){}
+        onPressed: (){
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => Camera(widget.cameras)),
+          );
+        }
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
