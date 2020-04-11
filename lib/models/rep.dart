@@ -4,7 +4,7 @@ import 'package:nucoach/screens/breakdown/components/foot_pressure_map.dart';
 
 class Rep {
   int id;
-  int score;
+  double score;
   Angles angles;
   FootPressureMap fpmap;
 
@@ -12,7 +12,7 @@ class Rep {
     this.id = 1;
     this.score = 100;
     this.angles = new Angles(90, 50, 0, 70);
-    this.fpmap = new FootPressureMap();
+    //this.fpmap = new FootPressureMap(List.generate(4, (i) => List(4), growable: false));
   }
 
   static final columns = [
@@ -30,7 +30,7 @@ class Rep {
     this.id = map[columnId];
     this.score = map[columnScore];
     this.angles = new Angles(map[columnShk].toDouble(), map[columnHka].toDouble(), map[columnSA].toDouble(), map[columnKag].toDouble());
-    this.fpmap = new FootPressureMap();
+    //this.fpmap = new FootPressureMap(List.generate(4, (i) => List(4), growable: false));
   }
 
   Map toMap() {

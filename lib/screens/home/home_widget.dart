@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:nucoach/components/database_test_widget.dart';
 import 'package:nucoach/main.dart';
+import 'package:nucoach/screens/home/components/analytics_widget.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'components/calendar_widget.dart';
@@ -36,12 +37,9 @@ class _HomeState extends State<Home> {
   int _selectedIndex;
   String _title;
 
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   final List<Widget> _children = [
-    Session(Colors.tealAccent, "Begin a new\nworkout session!",
-        TextStyle(color: Colors.black, fontSize: 30), cameras),
     CalendarWidget(),
+    AnalyticsWidget(),
     SettingsWidget()
   ];
 
@@ -65,9 +63,7 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: Text(_title),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: Container(
         child: _children[_selectedIndex],
       ),
       floatingActionButton: FloatingActionButton(
@@ -88,8 +84,8 @@ class _HomeState extends State<Home> {
             title: Text('Home'),
           ),
           new BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            title: Text('Activity'),
+            icon: Icon(Icons.show_chart),
+            title: Text('Analytics'),
           ),
           new BottomNavigationBarItem(
             icon: Icon(Icons.settings),
@@ -115,7 +111,7 @@ class _HomeState extends State<Home> {
       switch(index) {
         case 0: { _title = 'nuCoach'; }
         break;
-        case 1: { _title = 'Activity'; }
+        case 1: { _title = 'Analytics'; }
         break;
         case 2: { _title = 'Settings'; }
       }

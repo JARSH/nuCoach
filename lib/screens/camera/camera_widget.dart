@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:camera/camera.dart';
@@ -61,8 +62,12 @@ class _CameraState extends State<Camera> {
             new FlatButton(
               child: new Text("DONE"),
               onPressed: () {
-                waiting = false;
+                //waiting = false;
                 Navigator.of(context).pop();
+                Timer(Duration(seconds: 5), () {
+                  waiting = false;
+                  print("Yeah, this line is printed after 3 seconds");
+                });
               },
             ),
           ],
@@ -74,7 +79,7 @@ class _CameraState extends State<Camera> {
       print('No camera is found');
     } else {
       controller = new CameraController(
-        widget.cameras[0], //front facing camera = 1, rear camera = 0
+        widget.cameras[1], //front facing camera = 1, rear camera = 0
         ResolutionPreset.medium,
       );
       controller.initialize().then((_) {
@@ -84,7 +89,7 @@ class _CameraState extends State<Camera> {
         setState(() {});
 
         controller.startImageStream((CameraImage img) {
-          if (!isDetecting && !calculating) { //may have dependency on waiting flag
+          if (!isDetecting && !calculating && !waiting) { //may have dependency on waiting flag
             isDetecting = true;
 
             var result = Tflite.runPoseNetOnFrame(
@@ -213,7 +218,7 @@ class _CameraState extends State<Camera> {
         }
         Map<String, dynamic> row = {
           columnSetId: id,
-          columnScore: 5-25*sa_dist.abs(), //DUMMY VALUE
+          columnScore: (5-25*sa_dist.abs()).round(), //DUMMY VALUE
           columnShk: shk,
           columnHka: hka,
           columnSA: sa_dist,

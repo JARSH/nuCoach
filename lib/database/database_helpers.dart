@@ -71,7 +71,7 @@ class DatabaseHelper {
           CREATE TABLE $tableReps (
             $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
             $columnSetId INTEGER,
-            $columnScore INTEGER,
+            $columnScore DOUBLE,
             $columnShk INTEGER,
             $columnHka INTEGER,
             $columnSA INTEGER,

@@ -7,7 +7,7 @@ class Set {
   int id;
   Exercise exercise;
   int weight;
-  int score;
+  double score;
   List<Rep> reps;
 
   static final columns = [

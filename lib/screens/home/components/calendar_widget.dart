@@ -7,6 +7,7 @@ import 'package:nucoach/screens/summary/summary_widget.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../../database/database_helpers.dart';
+import 'package:nucoach/database/database_helpers.dart';
 
 class CalendarWidget extends StatefulWidget {
   CalendarWidget({Key key, this.title}) : super(key: key);
@@ -19,6 +20,8 @@ class CalendarWidget extends StatefulWidget {
 
 class _CalendarWidgetState extends State<CalendarWidget> {
   CalendarController _calendarController;
+  // reference to our single class that manages the database
+  final dbHelper = DatabaseHelper.instance;
 
   @override
   void initState() {
@@ -27,10 +30,26 @@ class _CalendarWidgetState extends State<CalendarWidget> {
   }
 
   @override
+  void dispose() {
+    _calendarController.dispose();
+    super.dispose();
+  }
+
+  //TODO: Query database for all dates and add to TableCalendar as Map<DateTime, List> events: const{}
+  @override
   Widget build(BuildContext context) {
     return TableCalendar(
       calendarController: _calendarController,
-      availableCalendarFormats: const {CalendarFormat.month: 'Month'},
+      initialCalendarFormat: CalendarFormat.week,
+      startingDayOfWeek: StartingDayOfWeek.sunday,
+      calendarStyle: CalendarStyle(
+        weekendStyle: TextStyle(color: Colors.black),
+        selectedColor: Colors.blue,
+        todayColor: Colors.blue[100]
+      ),
+      daysOfWeekStyle: DaysOfWeekStyle(
+        weekendStyle: TextStyle(color: const Color(0xFF616161))
+      ),
       onDaySelected: _onDaySelected,
     );
   }
@@ -65,5 +84,21 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     } else {
       return null;
     }
+  }
+
+
+
+  //TODO: Complete function to show list of events under calendar view
+  Widget _buildExerciseList() {
+    return ListView(
+
+    );
+  }
+
+  Future<List<DateTime>> getSessionDates() async {
+    final allRows = await dbHelper.queryAllRepRows();
+    List<DateTime> dates;
+    allRows.forEach((row) => dates.add(row[columnDate]));
+    return dates;
   }
 }
