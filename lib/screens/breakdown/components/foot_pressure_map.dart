@@ -59,46 +59,63 @@ class FootPressureMap extends StatelessWidget {
     x = (index / fpreadingsLength).floor();
     y = index % fpreadingsLength;
     int fpreading = fpreadings[x][y];
-    if (fpreading <= 25) {
-      return Container(
-        color: Colors.indigo[900],
-      );
-    } else if (fpreading > 25 && fpreading <= 50) {
-      return Container(
-        color: Colors.indigo[700],
-      );
-    } else if (fpreading > 50 && fpreading <= 75) {
-      return Container(
-        color: Colors.deepPurple,
-      );
-    } else if (fpreading > 75 && fpreading <= 100) {
-      return Container(
-        color: Colors.purple[800],
-      );
-    } else if (fpreading > 100 && fpreading <= 125) {
-      return Container(
-        color: Colors.purple[600],
-      );
-    } else if (fpreading > 125 && fpreading <= 150) {
-      return Container(
-        color: Colors.purple,
-      );
-    } else if (fpreading > 150 && fpreading <= 175) {
-      return Container(
-        color: Colors.pink[700],
-      );
-    } else if (fpreading > 175 && fpreading <= 200) {
-      return Container(
-        color: Colors.pink,
-      );
-    } else if (fpreading > 200 && fpreading <= 225) {
-      return Container(
-        color: Colors.red[400],
-      );
-    } else {
-      return Container(
-        color: Colors.redAccent[400],
-      );
+
+    int max = 90;
+    int min = 11;
+
+
+    //error checking
+    if(fpreading > max) {
+      fpreading = min;
     }
+
+//    double scaled = (fpreading - 4) * (100/156);
+//    double normal = scaled / 100;
+//    double hue = (1.0 - normal) * 240;
+    double normal = (fpreading - min)/(max-min);
+    double hue = (1.0 - normal) * 240;
+    Color color = HSLColor.fromAHSL(1, hue, 1, .5).toColor();
+    return Container(color: color);
+//    if (fpreading <= 25) {
+//      return Container(
+//        color: Colors.indigo[900],
+//      );
+//    } else if (fpreading > 25 && fpreading <= 50) {
+//      return Container(
+//        color: Colors.indigo[700],
+//      );
+//    } else if (fpreading > 50 && fpreading <= 75) {
+//      return Container(
+//        color: Colors.deepPurple,
+//      );
+//    } else if (fpreading > 75 && fpreading <= 100) {
+//      return Container(
+//        color: Colors.purple[800],
+//      );
+//    } else if (fpreading > 100 && fpreading <= 125) {
+//      return Container(
+//        color: Colors.purple[600],
+//      );
+//    } else if (fpreading > 125 && fpreading <= 150) {
+//      return Container(
+//        color: Colors.purple,
+//      );
+//    } else if (fpreading > 150 && fpreading <= 175) {
+//      return Container(
+//        color: Colors.pink[700],
+//      );
+//    } else if (fpreading > 175 && fpreading <= 200) {
+//      return Container(
+//        color: Colors.pink,
+//      );
+//    } else if (fpreading > 200 && fpreading <= 225) {
+//      return Container(
+//        color: Colors.red[400],
+//      );
+//    } else {
+//      return Container(
+//        color: Colors.redAccent[400],
+//      );
+//    }
   }
 }
