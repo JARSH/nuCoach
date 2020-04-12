@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:nucoach/bluetooth/MainPage.dart';
+import 'package:nucoach/bluetooth/FootPressureMainPage.dart';
 import 'package:nucoach/components/database_test_widget.dart';
-
 
 class SettingsWidget extends StatelessWidget {
 
@@ -24,11 +23,11 @@ class SettingsWidget extends StatelessWidget {
             ),
             RaisedButton(
               child: Text(
-                'Bluetooth',
+                'Foot Pressure Main Page',
                 style: TextStyle(fontSize: 20),
               ),
               onPressed: () {
-                Get.to(MainPage());
+                Get.to(FootPressureMainPage());
               },
             ),
           ],

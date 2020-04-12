@@ -9,7 +9,12 @@ class FootPressureMap extends StatelessWidget {
 //    [10, 10, 10, 10, 10],
 //  ];
 
-  List<List> fpreadings;
+//  List<List<dynamic>> fpreadings = [
+//    [77, 28, 22, 18, 16, 15, 13, 33, 23, 17, 15, 19, 19, 20, 23, 66, 47, 39, 45, 49, 45, 28, 38],
+//    [28, 22, 1]
+//  ]
+
+  List<List<dynamic>> fpreadings;
 
   FootPressureMap(this.fpreadings);
 

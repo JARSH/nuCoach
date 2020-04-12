@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:nucoach/bluetooth/FootPressureCollector.dart';
+import 'package:nucoach/bluetooth/FootPressureCollectedPage.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 import './DiscoveryPage.dart';
@@ -10,12 +12,12 @@ import './BackgroundCollectedPage.dart';
 
 // import './helpers/LineChart.dart';
 
-class MainPage extends StatefulWidget {
+class FootPressureMainPage extends StatefulWidget {
   @override
-  _MainPage createState() => new _MainPage();
+  _FootPressureMainPage createState() => new _FootPressureMainPage();
 }
 
-class _MainPage extends State<MainPage> {
+class _FootPressureMainPage extends State<FootPressureMainPage> {
   BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
 
   String _address = "...";
@@ -24,7 +26,7 @@ class _MainPage extends State<MainPage> {
   Timer _discoverableTimeoutTimer;
   int _discoverableTimeoutSecondsLeft = 0;
 
-  BackgroundCollectingTask _collectingTask;
+  FootPressureCollector _collectingTask;
 
   bool _autoAcceptPairingRequests = false;
 
@@ -131,63 +133,6 @@ class _MainPage extends State<MainPage> {
               subtitle: Text(_name),
               onLongPress: null,
             ),
-            ListTile(
-              title: _discoverableTimeoutSecondsLeft == 0
-                  ? const Text("Discoverable")
-                  : Text(
-                      "Discoverable for ${_discoverableTimeoutSecondsLeft}s"),
-              subtitle: const Text("PsychoX-Luna"),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Checkbox(
-                    value: _discoverableTimeoutSecondsLeft != 0,
-                    onChanged: null,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: null,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.refresh),
-                    onPressed: () async {
-                      print('Discoverable requested');
-                      final int timeout = await FlutterBluetoothSerial.instance
-                          .requestDiscoverable(60);
-                      if (timeout < 0) {
-                        print('Discoverable mode denied');
-                      } else {
-                        print(
-                            'Discoverable mode acquired for $timeout seconds');
-                      }
-                      setState(() {
-                        _discoverableTimeoutTimer?.cancel();
-                        _discoverableTimeoutSecondsLeft = timeout;
-                        _discoverableTimeoutTimer =
-                            Timer.periodic(Duration(seconds: 1), (Timer timer) {
-                          setState(() {
-                            if (_discoverableTimeoutSecondsLeft < 0) {
-                              FlutterBluetoothSerial.instance.isDiscoverable
-                                  .then((isDiscoverable) {
-                                if (isDiscoverable) {
-                                  print(
-                                      "Discoverable after timeout... might be infinity timeout :F");
-                                  _discoverableTimeoutSecondsLeft += 1;
-                                }
-                              });
-                              timer.cancel();
-                              _discoverableTimeoutSecondsLeft = 0;
-                            } else {
-                              _discoverableTimeoutSecondsLeft -= 1;
-                            }
-                          });
-                        });
-                      });
-                    },
-                  )
-                ],
-              ),
-            ),
             Divider(),
             ListTile(title: const Text('Devices discovery and connection')),
             SwitchListTile(
@@ -200,13 +145,13 @@ class _MainPage extends State<MainPage> {
                 });
                 if (value) {
                   FlutterBluetoothSerial.instance.setPairingRequestHandler(
-                      (BluetoothPairingRequest request) {
-                    print("Trying to auto-pair with Pin 1234");
-                    if (request.pairingVariant == PairingVariant.Pin) {
-                      return Future.value("1234");
-                    }
-                    return null;
-                  });
+                          (BluetoothPairingRequest request) {
+                        print("Trying to auto-pair with Pin 1234");
+                        if (request.pairingVariant == PairingVariant.Pin) {
+                          return Future.value("1234");
+                        }
+                        return null;
+                      });
                 } else {
                   FlutterBluetoothSerial.instance
                       .setPairingRequestHandler(null);
@@ -218,7 +163,7 @@ class _MainPage extends State<MainPage> {
                   child: const Text('Explore discovered devices'),
                   onPressed: () async {
                     final BluetoothDevice selectedDevice =
-                        await Navigator.of(context).push(
+                    await Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) {
                           return DiscoveryPage();
@@ -234,7 +179,7 @@ class _MainPage extends State<MainPage> {
                   }),
             ),
             Divider(),
-            ListTile(title: const Text('Multiple connections example')),
+            ListTile(title: const Text('Connect to FP Sensor')),
             ListTile(
               title: RaisedButton(
                 child: ((_collectingTask != null && _collectingTask.inProgress)
@@ -248,7 +193,7 @@ class _MainPage extends State<MainPage> {
                     });
                   } else {
                     final BluetoothDevice selectedDevice =
-                        await Navigator.of(context).push(
+                    await Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) {
                           return SelectBondedDevicePage(
@@ -269,19 +214,19 @@ class _MainPage extends State<MainPage> {
             ),
             ListTile(
               title: RaisedButton(
-                child: const Text('View background collected data'),
+                child: const Text('View FP Data'),
                 onPressed: (_collectingTask != null) ? () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return ScopedModel<BackgroundCollectingTask>(
-                                model: _collectingTask,
-                                child: BackgroundCollectedPage(),
-                              );
-                            },
-                          ),
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return ScopedModel<FootPressureCollector>(
+                          model: _collectingTask,
+                          child: FootPressureCollectedPage(),
                         );
-                      }
+                      },
+                    ),
+                  );
+                }
                     : null,
               ),
             ),
@@ -292,11 +237,11 @@ class _MainPage extends State<MainPage> {
   }
 
   Future<void> _startBackgroundTask(
-    BuildContext context,
-    BluetoothDevice server,
-  ) async {
+      BuildContext context,
+      BluetoothDevice server,
+      ) async {
     try {
-      _collectingTask = await BackgroundCollectingTask.connect(server);
+      _collectingTask = await FootPressureCollector.connect(server);
       await _collectingTask.start();
     } catch (ex) {
       if (_collectingTask != null) {

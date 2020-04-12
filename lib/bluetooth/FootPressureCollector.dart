@@ -4,17 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:scoped_model/scoped_model.dart';
 
-class BackgroundCollectingTask extends Model {
-  static BackgroundCollectingTask of(
+class FootPressureCollector extends Model {
+  static FootPressureCollector of(
       BuildContext context, {
         bool rebuildOnChange = false,
       }) =>
-      ScopedModel.of<BackgroundCollectingTask>(
+      ScopedModel.of<FootPressureCollector>(
         context,
         rebuildOnChange: rebuildOnChange,
       );
 
   final BluetoothConnection _connection;
+
 
   // @TODO , Such sample collection in real code should be delegated
   // (via `Stream<DataSample>` preferably) and then saved for later
@@ -23,20 +24,40 @@ class BackgroundCollectingTask extends Model {
 
   static int row = 24;
   static int col = 24;
+  List<int> _buffer = List<int>();
+  int index = 0;
+  int r = 0;
+  int c = 0;
   var matrix = List.generate(row, (i) => List(col), growable: false);
 
   bool inProgress;
 
-  BackgroundCollectingTask._fromConnection(this._connection) {
+  FootPressureCollector._fromConnection(this._connection) {
     _connection.input.listen((data) {
+    _buffer += data;
 
-    for (int i = 0; i < col; i++) {
-      for (int j = 0; j < row; j++) {
-        if(data[i+j] != 0) {
-          matrix[i][j] = data[i + j];
+    while(true) {
+      if(_buffer.length - index > 0 && r < 24 && c < 24) {
+        matrix[r][c] = _buffer[index];
+        if(c == 23) {
+          r++;
+          c = 0;
+        } else {
+          c++;
         }
+        index++;
+      } else {
+        break;
       }
+//      for (int i = 0; i < col; i++) {
+//        for (int j = 0; j < row; j++) {
+//          if (data[i + j] != 0) {
+//            matrix[i][j] = data[i + j];
+//          }
+//        }
+//      }
     }
+    notifyListeners();
 
 //      while (true) {
 //        // If there is a sample, and it is full sent
@@ -64,11 +85,11 @@ class BackgroundCollectingTask extends Model {
     });
   }
 
-  static Future<BackgroundCollectingTask> connect(
+  static Future<FootPressureCollector> connect(
       BluetoothDevice server) async {
     final BluetoothConnection connection =
     await BluetoothConnection.toAddress(server.address);
-    return BackgroundCollectingTask._fromConnection(connection);
+    return FootPressureCollector._fromConnection(connection);
   }
 
   void dispose() {
@@ -87,14 +108,14 @@ class BackgroundCollectingTask extends Model {
     }
 
     notifyListeners();
-    _connection.output.add(ascii.encode('start'));
+    _connection.output.add(ascii.encode('b'));
     await _connection.output.allSent;
   }
 
   Future<void> cancel() async {
     inProgress = false;
     notifyListeners();
-    _connection.output.add(ascii.encode('stop'));
+    _connection.output.add(ascii.encode('s'));
     await _connection.finish();
   }
 
@@ -110,5 +131,9 @@ class BackgroundCollectingTask extends Model {
     notifyListeners();
     _connection.output.add(ascii.encode('start'));
     await _connection.output.allSent;
+  }
+
+  List<List<dynamic>> getMatrix() {
+    return matrix;
   }
 }
