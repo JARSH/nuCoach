@@ -4,6 +4,7 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:nucoach/bluetooth/FootPressureCollector.dart';
 import 'package:nucoach/bluetooth/FootPressureCollectedPage.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:nucoach/bluetooth/BluetoothHelper.dart';
 
 import './DiscoveryPage.dart';
 import './SelectBondedDevicePage.dart';
@@ -18,17 +19,7 @@ class FootPressureMainPage extends StatefulWidget {
 }
 
 class _FootPressureMainPage extends State<FootPressureMainPage> {
-  BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
-
-  String _address = "...";
-  String _name = "...";
-
-  Timer _discoverableTimeoutTimer;
-  int _discoverableTimeoutSecondsLeft = 0;
-
-  FootPressureCollector _collectingTask;
-
-  bool _autoAcceptPairingRequests = false;
+  final bluetoothHelper = BluetoothHelper.instance;
 
   @override
   void initState() {
@@ -37,7 +28,7 @@ class _FootPressureMainPage extends State<FootPressureMainPage> {
     // Get current state
     FlutterBluetoothSerial.instance.state.then((state) {
       setState(() {
-        _bluetoothState = state;
+        bluetoothHelper.setBluetoothState(state);
       });
     });
 
@@ -52,14 +43,14 @@ class _FootPressureMainPage extends State<FootPressureMainPage> {
       // Update the address field
       FlutterBluetoothSerial.instance.address.then((address) {
         setState(() {
-          _address = address;
+          bluetoothHelper.setAddress(address);
         });
       });
     });
 
     FlutterBluetoothSerial.instance.name.then((name) {
       setState(() {
-        _name = name;
+        bluetoothHelper.setName(name);
       });
     });
 
@@ -68,20 +59,20 @@ class _FootPressureMainPage extends State<FootPressureMainPage> {
         .onStateChanged()
         .listen((BluetoothState state) {
       setState(() {
-        _bluetoothState = state;
+        bluetoothHelper.setBluetoothState(state);
 
         // Discoverable mode is disabled when Bluetooth gets disabled
-        _discoverableTimeoutTimer = null;
-        _discoverableTimeoutSecondsLeft = 0;
+        bluetoothHelper.setDiscoverableTimeoutTimer(null);
+        bluetoothHelper.setDiscoverableTimeoutSecondsLeft(0);
       });
     });
   }
 
   @override
   void dispose() {
-    FlutterBluetoothSerial.instance.setPairingRequestHandler(null);
-    _collectingTask?.dispose();
-    _discoverableTimeoutTimer?.cancel();
+//    FlutterBluetoothSerial.instance.setPairingRequestHandler(null);
+//    bluetoothHelper.getFootPressureCollector()?.dispose();
+//    bluetoothHelper.getDiscoverableTimeoutTimer()?.cancel();
     super.dispose();
   }
 
@@ -94,19 +85,17 @@ class _FootPressureMainPage extends State<FootPressureMainPage> {
       body: Container(
         child: ListView(
           children: <Widget>[
-            Divider(),
-            ListTile(title: const Text('General')),
             SwitchListTile(
               title: const Text('Enable Bluetooth'),
-              value: _bluetoothState.isEnabled,
+              value: bluetoothHelper.getBluetoothState().isEnabled,
               onChanged: (bool value) {
                 // Do the request and update with the true value then
                 future() async {
                   // async lambda seems to not working
                   if (value)
-                    await FlutterBluetoothSerial.instance.requestEnable();
+                    await bluetoothHelper.requestEnable();
                   else
-                    await FlutterBluetoothSerial.instance.requestDisable();
+                    await bluetoothHelper.requestDisable();
                 }
 
                 future().then((_) {
@@ -116,84 +105,64 @@ class _FootPressureMainPage extends State<FootPressureMainPage> {
             ),
             ListTile(
               title: const Text('Bluetooth status'),
-              subtitle: Text(_bluetoothState.toString()),
+              subtitle: Text(bluetoothHelper.getBluetoothState().toString()),
               trailing: RaisedButton(
                 child: const Text('Settings'),
                 onPressed: () {
-                  FlutterBluetoothSerial.instance.openSettings();
+                  bluetoothHelper.openSettings();
                 },
               ),
             ),
             ListTile(
               title: const Text('Local adapter address'),
-              subtitle: Text(_address),
+              subtitle: Text(bluetoothHelper.getAddress()),
             ),
             ListTile(
               title: const Text('Local adapter name'),
-              subtitle: Text(_name),
+              subtitle: Text(bluetoothHelper.getName()),
               onLongPress: null,
             ),
-            Divider(),
-            ListTile(title: const Text('Devices discovery and connection')),
-            SwitchListTile(
-              title: const Text('Auto-try specific pin when pairing'),
-              subtitle: const Text('Pin 1234'),
-              value: _autoAcceptPairingRequests,
-              onChanged: (bool value) {
-                setState(() {
-                  _autoAcceptPairingRequests = value;
-                });
-                if (value) {
-                  FlutterBluetoothSerial.instance.setPairingRequestHandler(
-                          (BluetoothPairingRequest request) {
-                        print("Trying to auto-pair with Pin 1234");
-                        if (request.pairingVariant == PairingVariant.Pin) {
-                          return Future.value("1234");
-                        }
-                        return null;
-                      });
-                } else {
-                  FlutterBluetoothSerial.instance
-                      .setPairingRequestHandler(null);
-                }
-              },
-            ),
             ListTile(
-              title: RaisedButton(
-                  child: const Text('Explore discovered devices'),
-                  onPressed: () async {
-                    final BluetoothDevice selectedDevice =
-                    await Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return DiscoveryPage();
-                        },
-                      ),
-                    );
+              title: const Text('Paired Device'),
+              subtitle: Text(bluetoothHelper.getBluetoothDevice()?.name ??
+                  "None or Unknown"),
+              trailing: RaisedButton(
+                child: const Text('Select Device'),
+                onPressed: () async {
+                  bluetoothHelper
+                      .setBluetoothDevice(await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return SelectBondedDevicePage(checkAvailability: false);
+                      },
+                    ),
+                  ));
 
-                    if (selectedDevice != null) {
-                      print('Discovery -> selected ' + selectedDevice.address);
-                    } else {
-                      print('Discovery -> no device selected');
-                    }
-                  }),
+                  if (bluetoothHelper.getBluetoothDevice() != null) {
+                    bluetoothHelper.setFootPressureCollector(
+                        await FootPressureCollector.connect(bluetoothHelper.getBluetoothDevice()));
+                  }
+                },
+              ),
             ),
             Divider(),
-            ListTile(title: const Text('Connect to FP Sensor')),
+            ListTile(
+                title:
+                    const Text('Test: Connect to FP Sensor and Capture Data')),
             ListTile(
               title: RaisedButton(
-                child: ((_collectingTask != null && _collectingTask.inProgress)
+                child: ((bluetoothHelper.getFootPressureCollector() != null && bluetoothHelper.getFootPressureCollector()?.inProgress != null)
                     ? const Text('Disconnect and stop background collecting')
                     : const Text('Connect to start background collecting')),
                 onPressed: () async {
-                  if (_collectingTask != null && _collectingTask.inProgress) {
-                    await _collectingTask.cancel();
+                  if (bluetoothHelper.getFootPressureCollector() != null && bluetoothHelper.getFootPressureCollector()?.inProgress != null) {
+                    await bluetoothHelper.getFootPressureCollector().cancel();
                     setState(() {
                       /* Update for `_collectingTask.inProgress` */
                     });
                   } else {
                     final BluetoothDevice selectedDevice =
-                    await Navigator.of(context).push(
+                        await Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) {
                           return SelectBondedDevicePage(
@@ -215,18 +184,19 @@ class _FootPressureMainPage extends State<FootPressureMainPage> {
             ListTile(
               title: RaisedButton(
                 child: const Text('View FP Data'),
-                onPressed: (_collectingTask != null) ? () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return ScopedModel<FootPressureCollector>(
-                          model: _collectingTask,
-                          child: FootPressureCollectedPage(),
+                onPressed: (bluetoothHelper.getFootPressureCollector() != null)
+                    ? () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return ScopedModel<FootPressureCollector>(
+                                model: bluetoothHelper.getFootPressureCollector(),
+                                child: FootPressureCollectedPage(),
+                              );
+                            },
+                          ),
                         );
-                      },
-                    ),
-                  );
-                }
+                      }
                     : null,
               ),
             ),
@@ -237,15 +207,15 @@ class _FootPressureMainPage extends State<FootPressureMainPage> {
   }
 
   Future<void> _startBackgroundTask(
-      BuildContext context,
-      BluetoothDevice server,
-      ) async {
+    BuildContext context,
+    BluetoothDevice server,
+  ) async {
     try {
-      _collectingTask = await FootPressureCollector.connect(server);
-      await _collectingTask.start();
+      bluetoothHelper.setFootPressureCollector(await FootPressureCollector.connect(server));
+      bluetoothHelper.startFootPressureCollector();
     } catch (ex) {
-      if (_collectingTask != null) {
-        _collectingTask.cancel();
+      if (bluetoothHelper.getFootPressureCollector() != null) {
+        bluetoothHelper.cancelFootPressureCollector();
       }
       showDialog(
         context: context,

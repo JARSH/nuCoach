@@ -9,6 +9,7 @@ import 'package:nucoach/models/session.dart';
 import 'package:nucoach/enums/exercise.dart';
 import 'package:nucoach/screens/summary/summary_widget.dart';
 import 'package:tflite/tflite.dart';
+import 'package:nucoach/bluetooth/BluetoothHelper.dart';
 
 enum ConfirmSave { DISCARD, KEEP, EXPORT }
 enum MidSession { END, CONTINUE }
@@ -44,6 +45,7 @@ class _CameraState extends State<Camera> {
 
   var angleBuffer = [];
   final dbHelper = DatabaseHelper.instance;
+  final bluetoothHelper = BluetoothHelper.instance;
 
   @override
   void initState() {
@@ -117,6 +119,9 @@ class _CameraState extends State<Camera> {
                   //send previousData to a local buffer to be processed later
                   angleBuffer.add(previousData);
                   //widget.currentReps++;
+//                  bluetoothHelper.startFootPressureCollector();
+//                  bluetoothHelper.cancelFootPressureCollector();
+
                 } else if (!descending &&
                     (keyData[referenceID]['y'] >
                         previousData[referenceID]['y'])) {
