@@ -10,6 +10,7 @@ import 'package:nucoach/enums/exercise.dart';
 import 'package:nucoach/screens/summary/summary_widget.dart';
 import 'package:tflite/tflite.dart';
 import 'package:nucoach/bluetooth/BluetoothHelper.dart';
+import 'package:nucoach/bluetooth/FootPressureCollector.dart';
 
 enum ConfirmSave { DISCARD, KEEP, EXPORT }
 enum MidSession { END, CONTINUE }
@@ -44,6 +45,7 @@ class _CameraState extends State<Camera> {
   bool descending = true;
 
   var angleBuffer = [];
+  var fpBuffer = [];
   final dbHelper = DatabaseHelper.instance;
   final bluetoothHelper = BluetoothHelper.instance;
 
@@ -81,7 +83,7 @@ class _CameraState extends State<Camera> {
       print('No camera is found');
     } else {
       controller = new CameraController(
-        widget.cameras[1], //front facing camera = 1, rear camera = 0
+        widget.cameras[0], //front facing camera = 1, rear camera = 0
         ResolutionPreset.medium,
       );
       controller.initialize().then((_) {
@@ -101,7 +103,7 @@ class _CameraState extends State<Camera> {
               imageHeight: img.height,
               imageWidth: img.width,
               numResults: 2,
-            ).then((recognitions) {
+            ).then((recognitions) async {
               var keyData = recognitions[0]['keypoints'];
               if (firstFrame) {
                 //check scores of leftHip and rightHip, and decide which will be the reference
@@ -119,7 +121,8 @@ class _CameraState extends State<Camera> {
                   //send previousData to a local buffer to be processed later
                   angleBuffer.add(previousData);
                   //widget.currentReps++;
-//                  bluetoothHelper.startFootPressureCollector();
+                  await bluetoothHelper.startFootPressureCollector();
+                  fpBuffer.add(bluetoothHelper.getFootPressureCollector().getMatrix());
 //                  bluetoothHelper.cancelFootPressureCollector();
 
                 } else if (!descending &&
