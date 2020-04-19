@@ -1,6 +1,7 @@
 import 'package:nucoach/database/database_helpers.dart';
 import 'package:nucoach/screens/breakdown/components/angles.dart';
 import 'package:nucoach/screens/breakdown/components/foot_pressure_map.dart';
+import 'dart:convert';
 
 class Rep {
   int id;
@@ -30,8 +31,11 @@ class Rep {
     this.id = map[columnId];
     this.score = map[columnScore];
     this.angles = new Angles(map[columnShk].toDouble(), map[columnHka].toDouble(), map[columnSA].toDouble(), map[columnKag].toDouble());
-    //this.fpmap = new FootPressureMap(List.generate(4, (i) => List(4), growable: false));
+    this.fpmap = new FootPressureMap(jsonDecode(map[columnFpm]));
   }
+
+  List<List<int>> fromJson(Map<String, dynamic> json) =>
+      List<List<int>>.from(json["matrix"].map((x) => List<int>.from(x.map((x) => x.toInteger()))));
 
   Map toMap() {
     Map map = {

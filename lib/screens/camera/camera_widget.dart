@@ -121,8 +121,11 @@ class _CameraState extends State<Camera> {
                   //send previousData to a local buffer to be processed later
                   angleBuffer.add(previousData);
                   //widget.currentReps++;
-                  await bluetoothHelper.startFootPressureCollector();
-                  fpBuffer.add(bluetoothHelper.getFootPressureCollector().getMatrix());
+                  bluetoothHelper.startFootPressureCollector();
+//                  fpBuffer.add(bluetoothHelper.getFootPressureCollector().getMatrix());
+                  bluetoothHelper.getFootPressureCollector().getMatrixFuture().then((matrix) {
+                    fpBuffer.add(matrix);
+                  });
 //                  bluetoothHelper.cancelFootPressureCollector();
 
                 } else if (!descending &&
@@ -224,20 +227,31 @@ class _CameraState extends State<Camera> {
           id = await dbHelper.insertSet(row);
           firstRep = false;
         }
+
         Map<String, dynamic> row = {
           columnSetId: id,
           columnScore: (5-25*sa_dist.abs()).round(), //DUMMY VALUE
           columnShk: shk,
           columnHka: hka,
           columnSA: sa_dist,
-          columnKag: kag
+          columnKag: kag,
+          columnFpm: matrixToString(fpBuffer[0]),
         };
         widget.currentReps++;
         await dbHelper.insertRep(row);
       }
-      angleBuffer = [];
+      fpBuffer.removeAt(0);
     }
+    angleBuffer = [];
   }
+
+  String matrixToString(List<List<dynamic>> matrix) {
+    return List<dynamic>.from(matrix.map((x) => List<dynamic>.from(x.map((x) => x)))).toString();
+  }
+
+  Map<String, dynamic> toJson(List<List<int>> matrix) => {
+    "matrix": List<dynamic>.from(matrix.map((x) => List<dynamic>.from(x.map((x) => x)))),
+  };
 
   Future<ConfirmSave> _asyncConfirmDialog(BuildContext context) async {
     return showDialog<ConfirmSave>(

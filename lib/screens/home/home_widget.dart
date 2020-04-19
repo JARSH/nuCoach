@@ -12,9 +12,8 @@ import '../camera/camera_widget.dart';
 
 class Home extends StatefulWidget {
   final List<CameraDescription> cameras;
-  final int initialIndex;
 
-  Home(this.cameras, this.initialIndex, {Key key, this.title})
+  Home(this.cameras, {Key key, this.title})
       : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
@@ -47,7 +46,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     getPermission();
-    _selectedIndex = widget.initialIndex;
+    _selectedIndex = 0;
     _title = 'nuCoach';
   }
 

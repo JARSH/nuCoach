@@ -9,9 +9,11 @@ class FootPressureMap extends StatelessWidget {
 //    [10, 10, 10, 10, 10],
 //  ];
 
-  List<List<dynamic>> fpreadings;
+  List<dynamic> fpreadings;
 
-  FootPressureMap(this.fpreadings);
+  FootPressureMap(List<dynamic> list) {
+   this.fpreadings = list;
+  }
 
   @override
   Widget build(BuildContext context) {

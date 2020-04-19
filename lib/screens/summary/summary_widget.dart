@@ -33,7 +33,7 @@ class SummaryWidgetState extends State<SummaryWidget> {
     var formatter = DateFormat.yMd();
     return WillPopScope(
       onWillPop: () {
-        Get.to(Home(cameras, 0));
+        Get.to(Home(cameras));
         return Future.value(false);
       },
       child: Scaffold(
