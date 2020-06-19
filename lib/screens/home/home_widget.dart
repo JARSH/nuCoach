@@ -38,7 +38,7 @@ class _HomeState extends State<Home> {
 
   final List<Widget> _children = [
     CalendarWidget(),
-    AnalyticsWidget(),
+//    AnalyticsWidget(),
     SettingsWidget()
   ];
 
@@ -82,10 +82,10 @@ class _HomeState extends State<Home> {
             icon: Icon(Icons.home),
             title: Text('Home'),
           ),
-          new BottomNavigationBarItem(
-            icon: Icon(Icons.show_chart),
-            title: Text('Analytics'),
-          ),
+//          new BottomNavigationBarItem(
+//            icon: Icon(Icons.show_chart),
+//            title: Text('Analytics'),
+//          ),
           new BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             title: Text('Settings'),
@@ -110,9 +110,9 @@ class _HomeState extends State<Home> {
       switch(index) {
         case 0: { _title = 'nuCoach'; }
         break;
-        case 1: { _title = 'Analytics'; }
-        break;
-        case 2: { _title = 'Settings'; }
+//        case 1: { _title = 'Analytics'; }
+//        break;
+        case 1: { _title = 'Settings'; }
       }
     });
   }
