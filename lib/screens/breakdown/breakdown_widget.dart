@@ -45,11 +45,11 @@ class _BreakdownState extends State<Breakdown> {
       bottomNavigationBar: BottomNavigationBar(
         items: [
           new BottomNavigationBarItem(
-            icon: Icon(Icons.check_circle_outline),
-            title: Text('Overall Breakdown'),
+            icon: Icon(Icons.done),
+            title: Text('Overall'),
           ),
           new BottomNavigationBarItem(
-            icon: Icon(Icons.camera_alt),
+            icon: Icon(Icons.visibility),
             title: Text('Computer Vision'),
           ),
           new BottomNavigationBarItem(
@@ -58,7 +58,8 @@ class _BreakdownState extends State<Breakdown> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.black26,
         onTap: _onItemTapped,
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );

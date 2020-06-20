@@ -7,7 +7,7 @@ class Set {
   int id;
   Exercise exercise;
   int weight;
-  int score;
+  double score;
   List<Rep> reps;
 
   static final columns = [
@@ -26,15 +26,14 @@ class Set {
 
   Set.fromMap(Map map) {
     this.id = map[columnId];
-    this.exercise =
-        EnumToString.fromString(Exercise.values, map[columnExercise]);
+//    this.exercise = map[columnExercise];
     this.weight = map[columnWeight];
     this.score = map[columnScore];
   }
 
   Map toMap() {
     Map map = {
-      columnExercise: exercise,
+//      columnExercise: exercise,
       columnScore: score,
     };
     if (id != null) {

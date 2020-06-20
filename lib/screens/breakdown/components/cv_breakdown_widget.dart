@@ -11,10 +11,10 @@ class CVBreakdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Column(
       children: [
-        Text("SHK: " + (rep.angles.shk*180/math.pi).toString()
-           + "\nHKA: " + (rep.angles.hka*180/math.pi).toString()
+        Text("Shoulder-Hip-Knee Angle: " + (rep.angles.shk*180/math.pi).round().toString() +'\u00B0'
+           + "\nHip-Knee-Ankle Angle: " + (rep.angles.hka*180/math.pi).round().toString() +'\u00B0'
            + "\nWeight to center of balance distance: " + rep.angles.sa_dist.toString()),
         Container(
       // width: 100,

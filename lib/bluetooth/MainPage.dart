@@ -270,8 +270,7 @@ class _MainPage extends State<MainPage> {
             ListTile(
               title: RaisedButton(
                 child: const Text('View background collected data'),
-                onPressed: (_collectingTask != null)
-                    ? () {
+                onPressed: (_collectingTask != null) ? () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) {

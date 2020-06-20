@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:camera/camera.dart';
@@ -8,6 +9,8 @@ import 'package:nucoach/models/session.dart';
 import 'package:nucoach/enums/exercise.dart';
 import 'package:nucoach/screens/summary/summary_widget.dart';
 import 'package:tflite/tflite.dart';
+import 'package:nucoach/bluetooth/BluetoothHelper.dart';
+import 'package:nucoach/bluetooth/FootPressureCollector.dart';
 
 enum ConfirmSave { DISCARD, KEEP, EXPORT }
 enum MidSession { END, CONTINUE }
@@ -16,12 +19,11 @@ typedef void Callback(List<dynamic> list, int h, int w);
 
 class Camera extends StatefulWidget {
   final List<CameraDescription> cameras;
-  final Callback setRecognitions;
   int totalReps = 0;
   int currentReps = 0; //completed in current set
   String exerciseType = Exercise.Squat.toString();
 
-  Camera(this.cameras, this.setRecognitions);
+  Camera(this.cameras);
 
   @override
   _CameraState createState() => new _CameraState();
@@ -43,7 +45,9 @@ class _CameraState extends State<Camera> {
   bool descending = true;
 
   var angleBuffer = [];
+  var fpBuffer = [];
   final dbHelper = DatabaseHelper.instance;
+  final bluetoothHelper = BluetoothHelper.instance;
 
   @override
   void initState() {
@@ -62,8 +66,12 @@ class _CameraState extends State<Camera> {
             new FlatButton(
               child: new Text("DONE"),
               onPressed: () {
-                waiting = false;
+                //waiting = false;
                 Navigator.of(context).pop();
+                Timer(Duration(seconds: 5), () {
+                  waiting = false;
+                  print("Yeah, this line is printed after 3 seconds");
+                });
               },
             ),
           ],
@@ -85,7 +93,7 @@ class _CameraState extends State<Camera> {
         setState(() {});
 
         controller.startImageStream((CameraImage img) {
-          if (!isDetecting && !calculating) { //may have dependency on waiting flag
+          if (!isDetecting && !calculating && !waiting) { //may have dependency on waiting flag
             isDetecting = true;
 
             var result = Tflite.runPoseNetOnFrame(
@@ -95,7 +103,7 @@ class _CameraState extends State<Camera> {
               imageHeight: img.height,
               imageWidth: img.width,
               numResults: 2,
-            ).then((recognitions) {
+            ).then((recognitions) async {
               var keyData = recognitions[0]['keypoints'];
               if (firstFrame) {
                 //check scores of leftHip and rightHip, and decide which will be the reference
@@ -113,6 +121,13 @@ class _CameraState extends State<Camera> {
                   //send previousData to a local buffer to be processed later
                   angleBuffer.add(previousData);
                   //widget.currentReps++;
+                  bluetoothHelper.startFootPressureCollector();
+//                  fpBuffer.add(bluetoothHelper.getFootPressureCollector().getMatrix());
+                  bluetoothHelper.getFootPressureCollector().getMatrixFuture().then((matrix) {
+                    fpBuffer.add(matrix);
+                  });
+//                  bluetoothHelper.cancelFootPressureCollector();
+
                 } else if (!descending &&
                     (keyData[referenceID]['y'] >
                         previousData[referenceID]['y'])) {
@@ -212,20 +227,31 @@ class _CameraState extends State<Camera> {
           id = await dbHelper.insertSet(row);
           firstRep = false;
         }
+
         Map<String, dynamic> row = {
           columnSetId: id,
-          columnScore: 5-25*sa_dist.abs(), //DUMMY VALUE
+          columnScore: (5-25*sa_dist.abs()).round(), //DUMMY VALUE
           columnShk: shk,
           columnHka: hka,
           columnSA: sa_dist,
-          columnKag: kag
+          columnKag: kag,
+          columnFpm: matrixToString(fpBuffer[0]),
         };
         widget.currentReps++;
         await dbHelper.insertRep(row);
       }
-      angleBuffer = [];
+      fpBuffer.removeAt(0);
     }
+    angleBuffer = [];
   }
+
+  String matrixToString(List<List<dynamic>> matrix) {
+    return List<dynamic>.from(matrix.map((x) => List<dynamic>.from(x.map((x) => x)))).toString();
+  }
+
+  Map<String, dynamic> toJson(List<List<int>> matrix) => {
+    "matrix": List<dynamic>.from(matrix.map((x) => List<dynamic>.from(x.map((x) => x)))),
+  };
 
   Future<ConfirmSave> _asyncConfirmDialog(BuildContext context) async {
     return showDialog<ConfirmSave>(

@@ -2,17 +2,18 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:nucoach/components/database_test_widget.dart';
 import 'package:nucoach/main.dart';
+import 'package:nucoach/screens/home/components/analytics_widget.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'components/calendar_widget.dart';
 import 'components/session_start.dart';
 import 'components/settings_widget.dart';
+import '../camera/camera_widget.dart';
 
 class Home extends StatefulWidget {
   final List<CameraDescription> cameras;
-  final int initialIndex;
 
-  Home(this.cameras, this.initialIndex, {Key key, this.title})
+  Home(this.cameras, {Key key, this.title})
       : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
@@ -33,13 +34,11 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   Map<PermissionGroup, PermissionStatus> permissions;
   int _selectedIndex;
+  String _title;
 
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   final List<Widget> _children = [
     CalendarWidget(),
-    Session(Colors.tealAccent, "Begin a new\nworkout session!",
-        TextStyle(color: Colors.black, fontSize: 30), cameras),
+//    AnalyticsWidget(),
     SettingsWidget()
   ];
 
@@ -47,7 +46,8 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     getPermission();
-    _selectedIndex = widget.initialIndex;
+    _selectedIndex = 0;
+    _title = 'nuCoach';
   }
 
   @override
@@ -60,30 +60,40 @@ class _HomeState extends State<Home> {
     // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        title: Text('nuCoach'),
+        title: Text(_title),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: Container(
         child: _children[_selectedIndex],
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        tooltip: 'New Workout',
+        onPressed: (){
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => Camera(widget.cameras)),
+          );
+        }
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: [
           new BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            title: Text('Stats'),
+            icon: Icon(Icons.home),
+            title: Text('Home'),
           ),
+//          new BottomNavigationBarItem(
+//            icon: Icon(Icons.show_chart),
+//            title: Text('Analytics'),
+//          ),
           new BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle),
-            title: Text('Start Session'),
-          ),
-          new BottomNavigationBarItem(
-            icon: Icon(Icons.settings_applications),
+            icon: Icon(Icons.settings),
             title: Text('Settings'),
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.black26,
         onTap: _onItemTapped,
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
@@ -97,6 +107,13 @@ class _HomeState extends State<Home> {
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
       _selectedIndex = index;
+      switch(index) {
+        case 0: { _title = 'nuCoach'; }
+        break;
+//        case 1: { _title = 'Analytics'; }
+//        break;
+        case 1: { _title = 'Settings'; }
+      }
     });
   }
 
